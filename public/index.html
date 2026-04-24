@@ -2988,9 +2988,8 @@ async function loginClient() {
   if (!email || !pwd) { showToast('⚠️ Veuillez remplir tous les champs'); return; }
   showToast('⏳ Connexion en cours...');
   try {
-    const data = await apiPost('/api/auth/login', { email, password: pwd });
-    if (data.success) {
-      clientToken = data.token || 'ok';
+    const data = await apiPost('/api/auth/connexion', { email, mot_de_passe: pwd });
+    if (data.succes) {
       clientLogged = true;
       await loadMenus();
       document.getElementById('authBox').style.display = 'none';
@@ -3024,8 +3023,8 @@ async function registerClient() {
   if (pwd.length < 6) { showToast('⚠️ Le mot de passe doit avoir au moins 6 caractères'); return; }
   showToast('⏳ Création du compte...');
   try {
-    const data = await apiPost('/api/auth/register', { prenom, nom, email, telephone: tel, adresse_livraison: adresse, password: pwd, abonnement });
-    if (data.success) {
+    const data = await apiPost('/api/auth/inscription', { prenom, nom, email, telephone: tel, adresse_livraison: adresse, mot_de_passe: pwd, abonnement });
+    if (data.succes) {
       showToast('🎉 Compte créé ! Bienvenue ' + prenom + ' !');
       document.getElementById('l-email').value = email;
       switchTab('login');
@@ -3039,7 +3038,7 @@ async function registerClient() {
 
 /* ─── CLIENT — DÉCONNEXION ────────────────────────────────── */
 async function logoutClient() {
-  try { await apiPost('/api/auth/logout', {}); } catch(e) {}
+  try { await apiPost('/api/auth/deconnexion', {}); } catch(e) {}
   clientToken = null;
   clientLogged = false;
   document.getElementById('authBox').style.display = 'block';
@@ -3097,7 +3096,7 @@ async function submitReview() {
   showToast('⏳ Publication en cours...');
   try {
     const data = await apiPost('/api/avis', { texte: txt, note: starCount });
-    if (data.success) {
+    if (data.succes || data.success) {
       showToast('⭐ Merci pour votre avis !');
       document.getElementById('reviewText').value = '';
       starCount = 4;
@@ -3119,9 +3118,8 @@ async function loginAdmin() {
   if (!u || !p) { showToast('⚠️ Identifiants requis'); return; }
   showToast('⏳ Vérification...');
   try {
-    const data = await apiPost('/api/admin/login', { username: u, password: p });
-    if (data.success) {
-      adminToken = data.token || 'ok';
+    const data = await apiPost('/api/auth/admin', { identifiant: u, mot_de_passe: p });
+    if (data.succes) {
       adminLogged = true;
       document.getElementById('adminLogin').style.display = 'none';
       document.getElementById('adminDash').style.display = 'block';
@@ -3137,7 +3135,7 @@ async function loginAdmin() {
 }
 
 async function logoutAdmin() {
-  try { await apiPost('/api/admin/logout', {}); } catch(e) {}
+  try { await apiPost('/api/auth/deconnexion', {}); } catch(e) {}
   adminToken = null;
   adminLogged = false;
   document.getElementById('adminLogin').style.display = 'block';
@@ -3172,7 +3170,7 @@ async function saveMenus() {
   showToast('⏳ Sauvegarde...');
   try {
     const data = await apiPost('/api/admin/menus', { menus });
-    if (data.success) {
+    if (data.succes) {
       Object.assign(menuData, menus);
       showToast('💾 Menus enregistrés avec succès !');
     } else {
@@ -3263,7 +3261,7 @@ async function sendContact() {
   showToast('⏳ Envoi en cours...');
   try {
     const data = await apiPost('/api/contact', { prenom, nom, email, telephone: tel, sujet, message: msg });
-    if (data.success) {
+    if (data.succes || data.success) {
       showToast('📨 Message envoyé ! Nous vous répondrons sous 24h.');
       ['c-prenom','c-nom','c-email','c-tel','c-message'].forEach(id => {
         const el = document.getElementById(id);
