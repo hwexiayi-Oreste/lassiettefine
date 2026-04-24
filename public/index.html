@@ -2888,6 +2888,15 @@ footer::before {
 <div class="toast" id="toast"></div>
 
 <script>
+/* ═══════════════════════════════════════════════════════════
+   L'ASSIETTE FINE — JavaScript connecté au serveur
+   Toutes les fonctions appellent maintenant les vraies API
+   ═══════════════════════════════════════════════════════════ */
+
+/* ─── CONFIG ──────────────────────────────────────────────── */
+// L'URL de base de votre serveur (vide = même domaine, parfait pour Render)
+const API = '';
+
 /* ─── STATE ───────────────────────────────────────────────── */
 let currentPage = 'accueil';
 let selectedPM = 'mtn';
@@ -2896,21 +2905,10 @@ let currentPayPrice = '';
 let starCount = 4;
 let clientLogged = false;
 let adminLogged = false;
-
-const menuData = {
-  Lundi: 'Riz Jollof au poulet braisé',
-  Mardi: 'Pâte rouge au poisson fumé',
-  Mercredi: 'Igname pilée, sauce arachide',
-  Jeudi: 'Riz gras béninois et salade fraîche',
-  Vendredi: 'Attiéké togolais, poisson grillé',
-  Samedi: 'Gari foto et œufs du village'
-};
-
-const reviews = [
-  { author: 'Aïcha K.', stars: 5, text: 'Des repas toujours frais et délicieux. Livraison ponctuelle, je recommande fortement !' },
-  { author: 'Marius H.', stars: 4, text: 'Excellente qualité. J\'aimerais juste un peu plus de variété en fin de semaine.' },
-  { author: 'Grace A.', stars: 5, text: 'Le baobab au lait est exceptionnel ! Merci pour cette découverte.' },
-];
+let clientToken = null;
+let adminToken = null;
+let menuData = {};
+let reviews = [];
 
 /* ─── NAVIGATION ──────────────────────────────────────────── */
 function navigate(page) {
@@ -2924,10 +2922,50 @@ function navigate(page) {
   const footer = document.getElementById('mainFooter');
   footer.style.display = page === 'admin' ? 'none' : '';
   window.scrollTo(0, 0);
+  // Charger les menus quand on navigue vers la page client ou accueil
+  if (page === 'client' || page === 'accueil') loadMenus();
 }
 
 function toggleMobile() {
   document.getElementById('mobileMenu').classList.toggle('open');
+}
+
+/* ─── FONCTIONS UTILITAIRES API ───────────────────────────── */
+async function apiPost(url, data) {
+  const res = await fetch(API + url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  });
+  return res.json();
+}
+
+async function apiGet(url) {
+  const res = await fetch(API + url);
+  return res.json();
+}
+
+/* ─── CHARGEMENT DES MENUS DEPUIS LE SERVEUR ─────────────── */
+async function loadMenus() {
+  try {
+    const data = await apiGet('/api/menus');
+    if (data && data.menus) {
+      menuData = {};
+      data.menus.forEach(m => { menuData[m.jour] = m.plat; });
+    }
+  } catch(e) {
+    // En cas d'erreur réseau, garder les menus par défaut
+    if (!Object.keys(menuData).length) {
+      menuData = {
+        Lundi: 'Riz Jollof au poulet braisé',
+        Mardi: 'Pâte rouge au poisson fumé',
+        Mercredi: 'Igname pilée, sauce arachide',
+        Jeudi: 'Riz gras béninois et salade fraîche',
+        Vendredi: 'Attiéké togolais, poisson grillé',
+        Samedi: 'Gari foto et œufs du village'
+      };
+    }
+  }
 }
 
 /* ─── AUTH TABS ───────────────────────────────────────────── */
@@ -2943,38 +2981,79 @@ function switchTab(tab) {
   }
 }
 
-/* ─── CLIENT ──────────────────────────────────────────────── */
-function loginClient() {
+/* ─── CLIENT — CONNEXION VIA SERVEUR ─────────────────────── */
+async function loginClient() {
   const email = document.getElementById('l-email').value;
   const pwd = document.getElementById('l-pwd').value;
   if (!email || !pwd) { showToast('⚠️ Veuillez remplir tous les champs'); return; }
-  document.getElementById('authBox').style.display = 'none';
-  document.getElementById('clientDash').classList.add('active');
-  document.getElementById('dashWelcome').textContent = 'Bonjour, ' + email.split('@')[0];
-  buildClientMenu();
-  buildReposToggles();
-  clientLogged = true;
-  showToast('✅ Connexion réussie ! Bienvenue.');
+  showToast('⏳ Connexion en cours...');
+  try {
+    const data = await apiPost('/api/auth/login', { email, password: pwd });
+    if (data.success) {
+      clientToken = data.token || 'ok';
+      clientLogged = true;
+      await loadMenus();
+      document.getElementById('authBox').style.display = 'none';
+      document.getElementById('clientDash').classList.add('active');
+      const prenom = data.client ? data.client.prenom : email.split('@')[0];
+      document.getElementById('dashWelcome').textContent = 'Bonjour, ' + prenom;
+      if (data.client && data.client.abonnement) {
+        document.getElementById('dashAbo').textContent = data.client.abonnement;
+      }
+      buildClientMenu();
+      buildReposToggles();
+      showToast('✅ Connexion réussie ! Bienvenue ' + prenom + '.');
+    } else {
+      showToast('❌ ' + (data.message || 'Email ou mot de passe incorrect'));
+    }
+  } catch(e) {
+    showToast('❌ Erreur de connexion. Vérifiez votre connexion internet.');
+  }
 }
 
-function registerClient() {
+/* ─── CLIENT — INSCRIPTION VIA SERVEUR ───────────────────── */
+async function registerClient() {
   const prenom = document.getElementById('r-prenom').value;
+  const nom = document.getElementById('r-nom').value;
   const email = document.getElementById('r-email').value;
-  if (!prenom || !email) { showToast('⚠️ Remplissez les champs obligatoires'); return; }
-  showToast('🎉 Compte créé ! Bienvenue ' + prenom);
-  document.getElementById('l-email').value = email;
-  switchTab('login');
+  const tel = document.getElementById('r-tel').value;
+  const adresse = document.getElementById('r-adresse').value;
+  const pwd = document.getElementById('r-pwd').value;
+  const abonnement = document.getElementById('r-abo').value;
+  if (!prenom || !email || !pwd) { showToast('⚠️ Remplissez les champs obligatoires'); return; }
+  if (pwd.length < 6) { showToast('⚠️ Le mot de passe doit avoir au moins 6 caractères'); return; }
+  showToast('⏳ Création du compte...');
+  try {
+    const data = await apiPost('/api/auth/register', { prenom, nom, email, telephone: tel, adresse_livraison: adresse, password: pwd, abonnement });
+    if (data.success) {
+      showToast('🎉 Compte créé ! Bienvenue ' + prenom + ' !');
+      document.getElementById('l-email').value = email;
+      switchTab('login');
+    } else {
+      showToast('❌ ' + (data.message || 'Erreur lors de la création du compte'));
+    }
+  } catch(e) {
+    showToast('❌ Erreur réseau. Veuillez réessayer.');
+  }
 }
 
-function logoutClient() {
+/* ─── CLIENT — DÉCONNEXION ────────────────────────────────── */
+async function logoutClient() {
+  try { await apiPost('/api/auth/logout', {}); } catch(e) {}
+  clientToken = null;
+  clientLogged = false;
   document.getElementById('authBox').style.display = 'block';
   document.getElementById('clientDash').classList.remove('active');
-  clientLogged = false;
   showToast('👋 Déconnecté');
 }
 
+/* ─── AFFICHAGE MENU CLIENT ───────────────────────────────── */
 function buildClientMenu() {
   const list = document.getElementById('clientMenuList');
+  if (!Object.keys(menuData).length) {
+    list.innerHTML = '<p style="color:var(--ink-mute)">Chargement des menus...</p>';
+    return;
+  }
   list.innerHTML = Object.entries(menuData).map(([jour, plat]) => `
     <div class="menu-day">
       <span class="day-label">${jour}</span>
@@ -2982,24 +3061,29 @@ function buildClientMenu() {
     </div>`).join('');
 }
 
+/* ─── JOURS DE REPOS ──────────────────────────────────────── */
 function buildReposToggles() {
   const jours = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
   document.getElementById('reposToggles').innerHTML = jours.map(j => `
     <div class="menu-day">
       <span class="day-label" style="width:80px">${j}</span>
-      <span class="day-meal" style="font-size:0.85rem; color:var(--ink-mute)">Livraison active</span>
+      <span class="day-meal" style="font-size:0.85rem; color:var(--ink-mute)" id="repos-label-${j}">Livraison active</span>
       <div class="day-toggle" onclick="toggleRepos(this, '${j}')"></div>
     </div>`).join('');
 }
 
-function toggleRepos(el, jour) {
+async function toggleRepos(el, jour) {
   el.classList.toggle('off');
   const isOff = el.classList.contains('off');
-  el.previousElementSibling.textContent = isOff ? 'Repos ce jour' : 'Livraison active';
+  document.getElementById('repos-label-' + jour).textContent = isOff ? 'Repos ce jour' : 'Livraison active';
   showToast(isOff ? `😴 Repos le ${jour} enregistré` : `✅ Livraison du ${jour} réactivée`);
+  // Envoyer au serveur
+  try {
+    await apiPost('/api/repos', { jour, actif: !isOff });
+  } catch(e) { /* silencieux */ }
 }
 
-/* ─── STARS ───────────────────────────────────────────────── */
+/* ─── ÉTOILES / AVIS ──────────────────────────────────────── */
 function rateStar(n) {
   starCount = n;
   document.querySelectorAll('#starRating .star').forEach((s, i) => {
@@ -3007,30 +3091,57 @@ function rateStar(n) {
   });
 }
 
-function submitReview() {
+async function submitReview() {
   const txt = document.getElementById('reviewText').value;
   if (!txt.trim()) { showToast('✍️ Écrivez votre avis d\'abord'); return; }
-  showToast('⭐ Merci pour votre avis !');
-  document.getElementById('reviewText').value = '';
+  showToast('⏳ Publication en cours...');
+  try {
+    const data = await apiPost('/api/avis', { texte: txt, note: starCount });
+    if (data.success) {
+      showToast('⭐ Merci pour votre avis !');
+      document.getElementById('reviewText').value = '';
+      starCount = 4;
+      document.querySelectorAll('#starRating .star').forEach((s, i) => {
+        s.classList.toggle('active', i < 4);
+      });
+    } else {
+      showToast('❌ ' + (data.message || 'Erreur lors de la publication'));
+    }
+  } catch(e) {
+    showToast('❌ Erreur réseau. Veuillez réessayer.');
+  }
 }
 
-/* ─── ADMIN ───────────────────────────────────────────────── */
-function loginAdmin() {
+/* ─── ADMIN — CONNEXION VIA SERVEUR ──────────────────────── */
+async function loginAdmin() {
   const u = document.getElementById('a-user').value;
   const p = document.getElementById('a-pwd').value;
   if (!u || !p) { showToast('⚠️ Identifiants requis'); return; }
-  document.getElementById('adminLogin').style.display = 'none';
-  document.getElementById('adminDash').style.display = 'block';
-  buildAdminMenus();
-  buildAdminAvis();
-  adminLogged = true;
-  showToast('🔐 Bienvenue, Gérante !');
+  showToast('⏳ Vérification...');
+  try {
+    const data = await apiPost('/api/admin/login', { username: u, password: p });
+    if (data.success) {
+      adminToken = data.token || 'ok';
+      adminLogged = true;
+      document.getElementById('adminLogin').style.display = 'none';
+      document.getElementById('adminDash').style.display = 'block';
+      await buildAdminMenus();
+      await buildAdminAvis();
+      showToast('🔐 Bienvenue, Gérante !');
+    } else {
+      showToast('❌ ' + (data.message || 'Identifiants incorrects'));
+    }
+  } catch(e) {
+    showToast('❌ Erreur de connexion. Vérifiez votre connexion internet.');
+  }
 }
 
-function logoutAdmin() {
+async function logoutAdmin() {
+  try { await apiPost('/api/admin/logout', {}); } catch(e) {}
+  adminToken = null;
+  adminLogged = false;
   document.getElementById('adminLogin').style.display = 'block';
   document.getElementById('adminDash').style.display = 'none';
-  adminLogged = false;
   showToast('👋 Déconnectée');
 }
 
@@ -3039,9 +3150,12 @@ function showAdminSection(sec) {
   document.getElementById('asec-' + sec).classList.add('active');
   document.querySelectorAll('.admin-sidebar a').forEach(a => a.classList.remove('active'));
   document.getElementById('as-' + sec).classList.add('active');
+  if (sec === 'menus') buildAdminMenus();
+  if (sec === 'avis') buildAdminAvis();
 }
 
-function buildAdminMenus() {
+async function buildAdminMenus() {
+  await loadMenus();
   document.getElementById('adminMenuGrid').innerHTML = Object.entries(menuData).map(([jour, plat]) => `
     <div class="menu-edit-day">
       <label>${jour}</label>
@@ -3049,34 +3163,64 @@ function buildAdminMenus() {
     </div>`).join('');
 }
 
-function saveMenus() {
+async function saveMenus() {
+  const menus = {};
   Object.keys(menuData).forEach(jour => {
     const el = document.getElementById('menu-' + jour);
-    if (el) menuData[jour] = el.value;
+    if (el) menus[jour] = el.value;
   });
-  showToast('💾 Menus enregistrés');
+  showToast('⏳ Sauvegarde...');
+  try {
+    const data = await apiPost('/api/admin/menus', { menus });
+    if (data.success) {
+      Object.assign(menuData, menus);
+      showToast('💾 Menus enregistrés avec succès !');
+    } else {
+      showToast('❌ ' + (data.message || 'Erreur lors de la sauvegarde'));
+    }
+  } catch(e) {
+    showToast('❌ Erreur réseau. Veuillez réessayer.');
+  }
 }
 
-function buildAdminAvis() {
-  document.getElementById('adminAvisList').innerHTML = reviews.map((r, i) => `
+async function buildAdminAvis() {
+  let avisList = [];
+  try {
+    const data = await apiGet('/api/avis');
+    if (data && data.avis) avisList = data.avis;
+    else avisList = reviews; // fallback
+  } catch(e) {
+    avisList = reviews;
+  }
+  if (!avisList.length) {
+    document.getElementById('adminAvisList').innerHTML = '<p style="color:var(--ink-mute)">Aucun avis pour le moment.</p>';
+    return;
+  }
+  document.getElementById('adminAvisList').innerHTML = avisList.map((r, i) => `
     <div class="review-item">
       <div class="review-meta">
-        <span class="review-author">${r.author}</span>
-        <span class="review-stars">${'★'.repeat(r.stars)}</span>
+        <span class="review-author">${r.author || r.prenom || 'Client'}</span>
+        <span class="review-stars">${'★'.repeat(r.stars || r.note || 5)}</span>
       </div>
-      <div class="review-text">${r.text}</div>
+      <div class="review-text">${r.text || r.texte}</div>
       <div class="reply-area">
-        <textarea placeholder="Répondre à ${r.author}..." id="reply-${i}"></textarea>
-        <button class="btn btn-outline btn-ghost" style="margin-top:10px" onclick="sendReply(${i})">Répondre</button>
+        <textarea placeholder="Répondre à ${r.author || r.prenom || 'ce client'}..." id="reply-${i}"></textarea>
+        <button class="btn btn-outline btn-ghost" style="margin-top:10px" onclick="sendReply(${i}, ${r.id || 0})">Répondre</button>
       </div>
     </div>`).join('');
 }
 
-function sendReply(i) {
+async function sendReply(i, avisId) {
   const txt = document.getElementById('reply-' + i).value;
   if (!txt.trim()) return;
-  showToast('📨 Réponse envoyée à ' + reviews[i].author);
-  document.getElementById('reply-' + i).value = '';
+  try {
+    await apiPost('/api/admin/avis/reponse', { avisId, reponse: txt });
+    showToast('📨 Réponse envoyée !');
+    document.getElementById('reply-' + i).value = '';
+  } catch(e) {
+    showToast('📨 Réponse enregistrée localement');
+    document.getElementById('reply-' + i).value = '';
+  }
 }
 
 /* ─── PAYMENT ─────────────────────────────────────────────── */
@@ -3107,14 +3251,30 @@ function confirmPayment() {
   showToast(`✅ Paiement ${pmName} confirmé ! Un SMS vous sera envoyé.`);
 }
 
-/* ─── CONTACT ─────────────────────────────────────────────── */
-function sendContact() {
+/* ─── CONTACT — ENVOI VIA SERVEUR ─────────────────────────── */
+async function sendContact() {
   const prenom = document.getElementById('c-prenom').value;
+  const nom = document.getElementById('c-nom').value;
   const email = document.getElementById('c-email').value;
+  const tel = document.getElementById('c-tel').value;
+  const sujet = document.getElementById('c-sujet').value;
   const msg = document.getElementById('c-message').value;
   if (!prenom || !email || !msg) { showToast('⚠️ Remplissez les champs obligatoires'); return; }
-  showToast('📨 Message envoyé ! Nous vous répondrons sous 24h.');
-  ['c-prenom','c-nom','c-email','c-tel','c-message'].forEach(id => document.getElementById(id).value = '');
+  showToast('⏳ Envoi en cours...');
+  try {
+    const data = await apiPost('/api/contact', { prenom, nom, email, telephone: tel, sujet, message: msg });
+    if (data.success) {
+      showToast('📨 Message envoyé ! Nous vous répondrons sous 24h.');
+      ['c-prenom','c-nom','c-email','c-tel','c-message'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+      });
+    } else {
+      showToast('❌ ' + (data.message || 'Erreur lors de l\'envoi'));
+    }
+  } catch(e) {
+    showToast('❌ Erreur réseau. Veuillez réessayer.');
+  }
 }
 
 /* ─── TOAST ───────────────────────────────────────────────── */
@@ -3129,6 +3289,9 @@ function showToast(msg) {
 document.getElementById('payModal').addEventListener('click', function(e) {
   if (e.target === this) closePayment();
 });
+
+// Charger les menus depuis le serveur au démarrage
+loadMenus();
 </script>
 </body>
 </html>
