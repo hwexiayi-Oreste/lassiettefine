@@ -3118,7 +3118,7 @@ async function loginAdmin() {
   if (!u || !p) { showToast('⚠️ Identifiants requis'); return; }
   showToast('⏳ Vérification...');
   try {
-    const data = await apiPost('/api/auth/admin', { identifiant: u, mot_de_passe: p });
+    const data = await apiPost('/api/admin/login', { identifiant: u, mot_de_passe: p });
     if (data.succes) {
       adminLogged = true;
       document.getElementById('adminLogin').style.display = 'none';
