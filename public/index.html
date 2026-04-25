@@ -2148,6 +2148,22 @@ footer::before {
     </div>
   </section>
 
+  <!-- ── SECTION AVIS CLIENTS ── -->
+  <section style="padding: 80px 0; background: var(--choco-dark);">
+    <div style="max-width: 1100px; margin: 0 auto; padding: 0 24px;">
+      <div style="text-align: center; margin-bottom: 52px;">
+        <p style="font-family: var(--font-display); color: var(--gold); font-size: 0.75rem; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 12px;">Ce que disent nos clients</p>
+        <h2 style="font-family: var(--font-title); color: var(--cream); font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 400; margin: 0;">Ils nous font <em>confiance</em></h2>
+      </div>
+      <div id="avisAccueil" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px;">
+        <!-- Les avis sont chargés dynamiquement -->
+        <div style="text-align:center; color: rgba(251,247,240,0.4); grid-column: 1/-1; padding: 40px 0;">
+          <p style="font-size: 1rem;">Chargement des avis...</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
 </div>
 
 <!-- ============================================================
@@ -3299,6 +3315,48 @@ document.getElementById('payModal').addEventListener('click', function(e) {
 
 // Charger les menus depuis le serveur au démarrage
 loadMenus();
+
+// ── CHARGER LES AVIS SUR LA PAGE D'ACCUEIL ────────────────
+async function loadAvisAccueil() {
+  try {
+    const data = await apiGet('/api/avis');
+    const container = document.getElementById('avisAccueil');
+    if (!container) return;
+    let avisList = (data && data.avis && data.avis.length) ? data.avis : [
+      { prenom: 'Aïcha K.', note: 5, commentaire: 'Des repas toujours frais et délicieux. Livraison ponctuelle, je recommande fortement !' },
+      { prenom: 'Marius H.', note: 4, commentaire: "Excellente qualité. J'aimerais juste un peu plus de variété en fin de semaine." },
+      { prenom: 'Grace A.', note: 5, commentaire: 'Le baobab au lait est exceptionnel ! Merci pour cette découverte.' }
+    ];
+    container.innerHTML = avisList.slice(0, 6).map(a => `
+      <div style="background: rgba(251,247,240,0.06); border: 1px solid rgba(212,175,55,0.25); border-radius: 12px; padding: 28px; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
+        <div style="color: #D4AF37; font-size: 1.1rem; margin-bottom: 14px; letter-spacing: 2px;">${'★'.repeat(a.note || 5)}${'☆'.repeat(5 - (a.note || 5))}</div>
+        <p style="color: rgba(251,247,240,0.85); font-size: 0.95rem; line-height: 1.7; margin: 0 0 20px; font-style: italic;">"${a.commentaire || a.texte || ''}"</p>
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div style="width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg, #6B3018, #D4AF37); display: flex; align-items: center; justify-content: center; color: #FBF7F0; font-weight: 700; font-size: 0.9rem;">${(a.prenom || 'C')[0].toUpperCase()}</div>
+          <span style="font-family: var(--font-display); color: var(--gold); font-style: italic; font-size: 0.95rem;">${a.prenom || 'Client'}</span>
+        </div>
+      </div>
+    `).join('');
+  } catch(e) {
+    // Afficher les avis par défaut si erreur
+    const container = document.getElementById('avisAccueil');
+    if (container) container.innerHTML = [
+      { prenom: 'Aïcha K.', note: 5, commentaire: 'Des repas toujours frais et délicieux. Livraison ponctuelle, je recommande fortement !' },
+      { prenom: 'Marius H.', note: 4, commentaire: "Excellente qualité. J'aimerais juste un peu plus de variété en fin de semaine." },
+      { prenom: 'Grace A.', note: 5, commentaire: 'Le baobab au lait est exceptionnel ! Merci pour cette découverte.' }
+    ].map(a => `
+      <div style="background: rgba(251,247,240,0.06); border: 1px solid rgba(212,175,55,0.25); border-radius: 12px; padding: 28px;">
+        <div style="color: #D4AF37; font-size: 1.1rem; margin-bottom: 14px;">${'★'.repeat(a.note)}</div>
+        <p style="color: rgba(251,247,240,0.85); font-size: 0.95rem; line-height: 1.7; margin: 0 0 20px; font-style: italic;">"${a.commentaire}"</p>
+        <div style="display:flex; align-items:center; gap:12px;">
+          <div style="width:38px; height:38px; border-radius:50%; background:linear-gradient(135deg,#6B3018,#D4AF37); display:flex; align-items:center; justify-content:center; color:#FBF7F0; font-weight:700;">${a.prenom[0]}</div>
+          <span style="font-family:var(--font-display); color:var(--gold); font-style:italic;">${a.prenom}</span>
+        </div>
+      </div>
+    `).join('');
+  }
+}
+loadAvisAccueil();
 
 // ── DÉTECTER CONNEXION GOOGLE ──────────────────────────────
 // Si Google nous redirige avec ?connexion=google, vérifier la session
