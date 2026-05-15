@@ -2148,6 +2148,22 @@ footer::before {
     </div>
   </section>
 
+  <!-- ── SECTION AVIS CLIENTS ── -->
+  <section style="padding: 80px 0; background: var(--choco-dark);">
+    <div style="max-width: 1100px; margin: 0 auto; padding: 0 24px;">
+      <div style="text-align: center; margin-bottom: 52px;">
+        <p style="font-family: var(--font-display); color: var(--gold); font-size: 0.75rem; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 12px;">Ce que disent nos clients</p>
+        <h2 style="font-family: var(--font-title); color: var(--cream); font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 400; margin: 0;">Ils nous font <em>confiance</em></h2>
+      </div>
+      <div id="avisAccueil" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px;">
+        <!-- Les avis sont chargés dynamiquement -->
+        <div style="text-align:center; color: rgba(251,247,240,0.4); grid-column: 1/-1; padding: 40px 0;">
+          <p style="font-size: 1rem;">Chargement des avis...</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
 </div>
 
 <!-- ============================================================
@@ -2577,6 +2593,15 @@ footer::before {
             <input type="password" placeholder="••••••••" id="l-pwd">
           </div>
           <button class="btn btn-primary" style="width:100%" onclick="loginClient()">Se connecter</button>
+          <div style="display:flex;align-items:center;gap:12px;margin:18px 0">
+            <div style="flex:1;height:1px;background:#e0d5c5"></div>
+            <span style="color:#9a8070;font-size:0.85rem">ou</span>
+            <div style="flex:1;height:1px;background:#e0d5c5"></div>
+          </div>
+          <a href="/api/auth/google" style="display:flex;align-items:center;justify-content:center;gap:12px;width:100%;padding:12px;border:1.5px solid #e0d5c5;border-radius:8px;background:#fff;color:#3A1506;font-size:0.95rem;font-weight:500;text-decoration:none;cursor:pointer;transition:background 0.2s" onmouseover="this.style.background='#fdf5ec'" onmouseout="this.style.background='#fff'">
+            <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+            Se connecter avec Google
+          </a>
           <div class="form-help">
             <a onclick="switchTab('register')">Pas encore inscrit ?</a> ·
             <a onclick="showToast('📧 Email de réinitialisation envoyé')">Mot de passe oublié</a>
@@ -2716,7 +2741,7 @@ footer::before {
         <span>L'Assiette Fine</span>
       </div>
       <div style="display:flex; align-items:center; gap:14px">
-        <span style="font-family:var(--font-title); font-size:0.7rem; letter-spacing:2px; text-transform:uppercase; color:rgba(250,245,235,0.7)">Gérante connectée</span>
+        <span style="font-family:var(--font-title); font-size:0.7rem; letter-spacing:2px; text-transform:uppercase; color:rgba(250,245,235,0.7)">Hawa connectée</span>
         <button class="btn btn-outline-light btn-ghost" onclick="logoutAdmin()">Déconnexion</button>
       </div>
     </div>
@@ -2888,6 +2913,15 @@ footer::before {
 <div class="toast" id="toast"></div>
 
 <script>
+/* ═══════════════════════════════════════════════════════════
+   L'ASSIETTE FINE — JavaScript connecté au serveur
+   Toutes les fonctions appellent maintenant les vraies API
+   ═══════════════════════════════════════════════════════════ */
+
+/* ─── CONFIG ──────────────────────────────────────────────── */
+// L'URL de base de votre serveur (vide = même domaine, parfait pour Render)
+const API = '';
+
 /* ─── STATE ───────────────────────────────────────────────── */
 let currentPage = 'accueil';
 let selectedPM = 'mtn';
@@ -2896,21 +2930,10 @@ let currentPayPrice = '';
 let starCount = 4;
 let clientLogged = false;
 let adminLogged = false;
-
-const menuData = {
-  Lundi: 'Riz Jollof au poulet braisé',
-  Mardi: 'Pâte rouge au poisson fumé',
-  Mercredi: 'Igname pilée, sauce arachide',
-  Jeudi: 'Riz gras béninois et salade fraîche',
-  Vendredi: 'Attiéké togolais, poisson grillé',
-  Samedi: 'Gari foto et œufs du village'
-};
-
-const reviews = [
-  { author: 'Aïcha K.', stars: 5, text: 'Des repas toujours frais et délicieux. Livraison ponctuelle, je recommande fortement !' },
-  { author: 'Marius H.', stars: 4, text: 'Excellente qualité. J\'aimerais juste un peu plus de variété en fin de semaine.' },
-  { author: 'Grace A.', stars: 5, text: 'Le baobab au lait est exceptionnel ! Merci pour cette découverte.' },
-];
+let clientToken = null;
+let adminToken = null;
+let menuData = {};
+let reviews = [];
 
 /* ─── NAVIGATION ──────────────────────────────────────────── */
 function navigate(page) {
@@ -2924,10 +2947,50 @@ function navigate(page) {
   const footer = document.getElementById('mainFooter');
   footer.style.display = page === 'admin' ? 'none' : '';
   window.scrollTo(0, 0);
+  // Charger les menus quand on navigue vers la page client ou accueil
+  if (page === 'client' || page === 'accueil') loadMenus();
 }
 
 function toggleMobile() {
   document.getElementById('mobileMenu').classList.toggle('open');
+}
+
+/* ─── FONCTIONS UTILITAIRES API ───────────────────────────── */
+async function apiPost(url, data) {
+  const res = await fetch(API + url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  });
+  return res.json();
+}
+
+async function apiGet(url) {
+  const res = await fetch(API + url);
+  return res.json();
+}
+
+/* ─── CHARGEMENT DES MENUS DEPUIS LE SERVEUR ─────────────── */
+async function loadMenus() {
+  try {
+    const data = await apiGet('/api/menus');
+    if (data && data.menus) {
+      menuData = {};
+      data.menus.forEach(m => { menuData[m.jour] = m.plat; });
+    }
+  } catch(e) {
+    // En cas d'erreur réseau, garder les menus par défaut
+    if (!Object.keys(menuData).length) {
+      menuData = {
+        Lundi: 'Riz Jollof au poulet braisé',
+        Mardi: 'Pâte rouge au poisson fumé',
+        Mercredi: 'Igname pilée, sauce arachide',
+        Jeudi: 'Riz gras béninois et salade fraîche',
+        Vendredi: 'Attiéké togolais, poisson grillé',
+        Samedi: 'Gari foto et œufs du village'
+      };
+    }
+  }
 }
 
 /* ─── AUTH TABS ───────────────────────────────────────────── */
@@ -2943,38 +3006,78 @@ function switchTab(tab) {
   }
 }
 
-/* ─── CLIENT ──────────────────────────────────────────────── */
-function loginClient() {
+/* ─── CLIENT — CONNEXION VIA SERVEUR ─────────────────────── */
+async function loginClient() {
   const email = document.getElementById('l-email').value;
   const pwd = document.getElementById('l-pwd').value;
   if (!email || !pwd) { showToast('⚠️ Veuillez remplir tous les champs'); return; }
-  document.getElementById('authBox').style.display = 'none';
-  document.getElementById('clientDash').classList.add('active');
-  document.getElementById('dashWelcome').textContent = 'Bonjour, ' + email.split('@')[0];
-  buildClientMenu();
-  buildReposToggles();
-  clientLogged = true;
-  showToast('✅ Connexion réussie ! Bienvenue.');
+  showToast('⏳ Connexion en cours...');
+  try {
+    const data = await apiPost('/api/auth/connexion', { email, mot_de_passe: pwd });
+    if (data.succes) {
+      clientLogged = true;
+      await loadMenus();
+      document.getElementById('authBox').style.display = 'none';
+      document.getElementById('clientDash').classList.add('active');
+      const prenom = data.client ? data.client.prenom : email.split('@')[0];
+      document.getElementById('dashWelcome').textContent = 'Bonjour, ' + prenom;
+      if (data.client && data.client.abonnement) {
+        document.getElementById('dashAbo').textContent = data.client.abonnement;
+      }
+      buildClientMenu();
+      buildReposToggles();
+      showToast('✅ Connexion réussie ! Bienvenue ' + prenom + '.');
+    } else {
+      showToast('❌ ' + (data.message || 'Email ou mot de passe incorrect'));
+    }
+  } catch(e) {
+    showToast('❌ Erreur de connexion. Vérifiez votre connexion internet.');
+  }
 }
 
-function registerClient() {
+/* ─── CLIENT — INSCRIPTION VIA SERVEUR ───────────────────── */
+async function registerClient() {
   const prenom = document.getElementById('r-prenom').value;
+  const nom = document.getElementById('r-nom').value;
   const email = document.getElementById('r-email').value;
-  if (!prenom || !email) { showToast('⚠️ Remplissez les champs obligatoires'); return; }
-  showToast('🎉 Compte créé ! Bienvenue ' + prenom);
-  document.getElementById('l-email').value = email;
-  switchTab('login');
+  const tel = document.getElementById('r-tel').value;
+  const adresse = document.getElementById('r-adresse').value;
+  const pwd = document.getElementById('r-pwd').value;
+  const abonnement = document.getElementById('r-abo').value;
+  if (!prenom || !email || !pwd) { showToast('⚠️ Remplissez les champs obligatoires'); return; }
+  if (pwd.length < 6) { showToast('⚠️ Le mot de passe doit avoir au moins 6 caractères'); return; }
+  showToast('⏳ Création du compte...');
+  try {
+    const data = await apiPost('/api/auth/inscription', { prenom, nom, email, telephone: tel, adresse_livraison: adresse, mot_de_passe: pwd, abonnement });
+    if (data.succes) {
+      showToast('🎉 Compte créé ! Bienvenue ' + prenom + ' !');
+      document.getElementById('l-email').value = email;
+      switchTab('login');
+    } else {
+      showToast('❌ ' + (data.message || 'Erreur lors de la création du compte'));
+    }
+  } catch(e) {
+    showToast('❌ Erreur réseau. Veuillez réessayer.');
+  }
 }
 
-function logoutClient() {
+/* ─── CLIENT — DÉCONNEXION ────────────────────────────────── */
+async function logoutClient() {
+  try { await apiPost('/api/auth/deconnexion', {}); } catch(e) {}
+  clientToken = null;
+  clientLogged = false;
   document.getElementById('authBox').style.display = 'block';
   document.getElementById('clientDash').classList.remove('active');
-  clientLogged = false;
   showToast('👋 Déconnecté');
 }
 
+/* ─── AFFICHAGE MENU CLIENT ───────────────────────────────── */
 function buildClientMenu() {
   const list = document.getElementById('clientMenuList');
+  if (!Object.keys(menuData).length) {
+    list.innerHTML = '<p style="color:var(--ink-mute)">Chargement des menus...</p>';
+    return;
+  }
   list.innerHTML = Object.entries(menuData).map(([jour, plat]) => `
     <div class="menu-day">
       <span class="day-label">${jour}</span>
@@ -2982,24 +3085,29 @@ function buildClientMenu() {
     </div>`).join('');
 }
 
+/* ─── JOURS DE REPOS ──────────────────────────────────────── */
 function buildReposToggles() {
   const jours = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
   document.getElementById('reposToggles').innerHTML = jours.map(j => `
     <div class="menu-day">
       <span class="day-label" style="width:80px">${j}</span>
-      <span class="day-meal" style="font-size:0.85rem; color:var(--ink-mute)">Livraison active</span>
+      <span class="day-meal" style="font-size:0.85rem; color:var(--ink-mute)" id="repos-label-${j}">Livraison active</span>
       <div class="day-toggle" onclick="toggleRepos(this, '${j}')"></div>
     </div>`).join('');
 }
 
-function toggleRepos(el, jour) {
+async function toggleRepos(el, jour) {
   el.classList.toggle('off');
   const isOff = el.classList.contains('off');
-  el.previousElementSibling.textContent = isOff ? 'Repos ce jour' : 'Livraison active';
+  document.getElementById('repos-label-' + jour).textContent = isOff ? 'Repos ce jour' : 'Livraison active';
   showToast(isOff ? `😴 Repos le ${jour} enregistré` : `✅ Livraison du ${jour} réactivée`);
+  // Envoyer au serveur
+  try {
+    await apiPost('/api/repos', { jour, actif: !isOff });
+  } catch(e) { /* silencieux */ }
 }
 
-/* ─── STARS ───────────────────────────────────────────────── */
+/* ─── ÉTOILES / AVIS ──────────────────────────────────────── */
 function rateStar(n) {
   starCount = n;
   document.querySelectorAll('#starRating .star').forEach((s, i) => {
@@ -3007,30 +3115,56 @@ function rateStar(n) {
   });
 }
 
-function submitReview() {
+async function submitReview() {
   const txt = document.getElementById('reviewText').value;
   if (!txt.trim()) { showToast('✍️ Écrivez votre avis d\'abord'); return; }
-  showToast('⭐ Merci pour votre avis !');
-  document.getElementById('reviewText').value = '';
+  showToast('⏳ Publication en cours...');
+  try {
+    const data = await apiPost('/api/avis', { texte: txt, note: starCount });
+    if (data.succes || data.success) {
+      showToast('⭐ Merci pour votre avis !');
+      document.getElementById('reviewText').value = '';
+      starCount = 4;
+      document.querySelectorAll('#starRating .star').forEach((s, i) => {
+        s.classList.toggle('active', i < 4);
+      });
+    } else {
+      showToast('❌ ' + (data.message || 'Erreur lors de la publication'));
+    }
+  } catch(e) {
+    showToast('❌ Erreur réseau. Veuillez réessayer.');
+  }
 }
 
-/* ─── ADMIN ───────────────────────────────────────────────── */
-function loginAdmin() {
+/* ─── ADMIN — CONNEXION VIA SERVEUR ──────────────────────── */
+async function loginAdmin() {
   const u = document.getElementById('a-user').value;
   const p = document.getElementById('a-pwd').value;
   if (!u || !p) { showToast('⚠️ Identifiants requis'); return; }
-  document.getElementById('adminLogin').style.display = 'none';
-  document.getElementById('adminDash').style.display = 'block';
-  buildAdminMenus();
-  buildAdminAvis();
-  adminLogged = true;
-  showToast('🔐 Bienvenue, Gérante !');
+  showToast('⏳ Vérification...');
+  try {
+    const data = await apiPost('/api/auth/admin', { identifiant: u, mot_de_passe: p });
+    if (data.succes) {
+      adminLogged = true;
+      document.getElementById('adminLogin').style.display = 'none';
+      document.getElementById('adminDash').style.display = 'block';
+      await buildAdminMenus();
+      await buildAdminAvis();
+      showToast('🔐 Bienvenue, Gérante !');
+    } else {
+      showToast('❌ ' + (data.message || 'Identifiants incorrects'));
+    }
+  } catch(e) {
+    showToast('❌ Erreur de connexion. Vérifiez votre connexion internet.');
+  }
 }
 
-function logoutAdmin() {
+async function logoutAdmin() {
+  try { await apiPost('/api/auth/deconnexion', {}); } catch(e) {}
+  adminToken = null;
+  adminLogged = false;
   document.getElementById('adminLogin').style.display = 'block';
   document.getElementById('adminDash').style.display = 'none';
-  adminLogged = false;
   showToast('👋 Déconnectée');
 }
 
@@ -3039,9 +3173,12 @@ function showAdminSection(sec) {
   document.getElementById('asec-' + sec).classList.add('active');
   document.querySelectorAll('.admin-sidebar a').forEach(a => a.classList.remove('active'));
   document.getElementById('as-' + sec).classList.add('active');
+  if (sec === 'menus') buildAdminMenus();
+  if (sec === 'avis') buildAdminAvis();
 }
 
-function buildAdminMenus() {
+async function buildAdminMenus() {
+  await loadMenus();
   document.getElementById('adminMenuGrid').innerHTML = Object.entries(menuData).map(([jour, plat]) => `
     <div class="menu-edit-day">
       <label>${jour}</label>
@@ -3049,34 +3186,64 @@ function buildAdminMenus() {
     </div>`).join('');
 }
 
-function saveMenus() {
+async function saveMenus() {
+  const menus = {};
   Object.keys(menuData).forEach(jour => {
     const el = document.getElementById('menu-' + jour);
-    if (el) menuData[jour] = el.value;
+    if (el) menus[jour] = el.value;
   });
-  showToast('💾 Menus enregistrés');
+  showToast('⏳ Sauvegarde...');
+  try {
+    const data = await apiPost('/api/admin/menus', { menus });
+    if (data.succes) {
+      Object.assign(menuData, menus);
+      showToast('💾 Menus enregistrés avec succès !');
+    } else {
+      showToast('❌ ' + (data.message || 'Erreur lors de la sauvegarde'));
+    }
+  } catch(e) {
+    showToast('❌ Erreur réseau. Veuillez réessayer.');
+  }
 }
 
-function buildAdminAvis() {
-  document.getElementById('adminAvisList').innerHTML = reviews.map((r, i) => `
+async function buildAdminAvis() {
+  let avisList = [];
+  try {
+    const data = await apiGet('/api/avis');
+    if (data && data.avis) avisList = data.avis;
+    else avisList = reviews; // fallback
+  } catch(e) {
+    avisList = reviews;
+  }
+  if (!avisList.length) {
+    document.getElementById('adminAvisList').innerHTML = '<p style="color:var(--ink-mute)">Aucun avis pour le moment.</p>';
+    return;
+  }
+  document.getElementById('adminAvisList').innerHTML = avisList.map((r, i) => `
     <div class="review-item">
       <div class="review-meta">
-        <span class="review-author">${r.author}</span>
-        <span class="review-stars">${'★'.repeat(r.stars)}</span>
+        <span class="review-author">${r.author || r.prenom || 'Client'}</span>
+        <span class="review-stars">${'★'.repeat(r.stars || r.note || 5)}</span>
       </div>
-      <div class="review-text">${r.text}</div>
+      <div class="review-text">${r.text || r.texte}</div>
       <div class="reply-area">
-        <textarea placeholder="Répondre à ${r.author}..." id="reply-${i}"></textarea>
-        <button class="btn btn-outline btn-ghost" style="margin-top:10px" onclick="sendReply(${i})">Répondre</button>
+        <textarea placeholder="Répondre à ${r.author || r.prenom || 'ce client'}..." id="reply-${i}"></textarea>
+        <button class="btn btn-outline btn-ghost" style="margin-top:10px" onclick="sendReply(${i}, ${r.id || 0})">Répondre</button>
       </div>
     </div>`).join('');
 }
 
-function sendReply(i) {
+async function sendReply(i, avisId) {
   const txt = document.getElementById('reply-' + i).value;
   if (!txt.trim()) return;
-  showToast('📨 Réponse envoyée à ' + reviews[i].author);
-  document.getElementById('reply-' + i).value = '';
+  try {
+    await apiPost('/api/admin/avis/reponse', { avisId, reponse: txt });
+    showToast('📨 Réponse envoyée !');
+    document.getElementById('reply-' + i).value = '';
+  } catch(e) {
+    showToast('📨 Réponse enregistrée localement');
+    document.getElementById('reply-' + i).value = '';
+  }
 }
 
 /* ─── PAYMENT ─────────────────────────────────────────────── */
@@ -3107,14 +3274,30 @@ function confirmPayment() {
   showToast(`✅ Paiement ${pmName} confirmé ! Un SMS vous sera envoyé.`);
 }
 
-/* ─── CONTACT ─────────────────────────────────────────────── */
-function sendContact() {
+/* ─── CONTACT — ENVOI VIA SERVEUR ─────────────────────────── */
+async function sendContact() {
   const prenom = document.getElementById('c-prenom').value;
+  const nom = document.getElementById('c-nom').value;
   const email = document.getElementById('c-email').value;
+  const tel = document.getElementById('c-tel').value;
+  const sujet = document.getElementById('c-sujet').value;
   const msg = document.getElementById('c-message').value;
   if (!prenom || !email || !msg) { showToast('⚠️ Remplissez les champs obligatoires'); return; }
-  showToast('📨 Message envoyé ! Nous vous répondrons sous 24h.');
-  ['c-prenom','c-nom','c-email','c-tel','c-message'].forEach(id => document.getElementById(id).value = '');
+  showToast('⏳ Envoi en cours...');
+  try {
+    const data = await apiPost('/api/contact', { prenom, nom, email, telephone: tel, sujet, message: msg });
+    if (data.succes || data.success) {
+      showToast('📨 Message envoyé ! Nous vous répondrons sous 24h.');
+      ['c-prenom','c-nom','c-email','c-tel','c-message'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+      });
+    } else {
+      showToast('❌ ' + (data.message || 'Erreur lors de l\'envoi'));
+    }
+  } catch(e) {
+    showToast('❌ Erreur réseau. Veuillez réessayer.');
+  }
 }
 
 /* ─── TOAST ───────────────────────────────────────────────── */
@@ -3129,6 +3312,78 @@ function showToast(msg) {
 document.getElementById('payModal').addEventListener('click', function(e) {
   if (e.target === this) closePayment();
 });
+
+// Charger les menus depuis le serveur au démarrage
+loadMenus();
+
+// ── CHARGER LES AVIS SUR LA PAGE D'ACCUEIL ────────────────
+async function loadAvisAccueil() {
+  try {
+    const data = await apiGet('/api/avis');
+    const container = document.getElementById('avisAccueil');
+    if (!container) return;
+    let avisList = (data && data.avis && data.avis.length) ? data.avis : [
+      { prenom: 'Aïcha K.', note: 5, commentaire: 'Des repas toujours frais et délicieux. Livraison ponctuelle, je recommande fortement !' },
+      { prenom: 'Marius H.', note: 4, commentaire: "Excellente qualité. J'aimerais juste un peu plus de variété en fin de semaine." },
+      { prenom: 'Grace A.', note: 5, commentaire: 'Le baobab au lait est exceptionnel ! Merci pour cette découverte.' }
+    ];
+    container.innerHTML = avisList.slice(0, 6).map(a => `
+      <div style="background: rgba(251,247,240,0.06); border: 1px solid rgba(212,175,55,0.25); border-radius: 12px; padding: 28px; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
+        <div style="color: #D4AF37; font-size: 1.1rem; margin-bottom: 14px; letter-spacing: 2px;">${'★'.repeat(a.note || 5)}${'☆'.repeat(5 - (a.note || 5))}</div>
+        <p style="color: rgba(251,247,240,0.85); font-size: 0.95rem; line-height: 1.7; margin: 0 0 20px; font-style: italic;">"${a.commentaire || a.texte || ''}"</p>
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div style="width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg, #6B3018, #D4AF37); display: flex; align-items: center; justify-content: center; color: #FBF7F0; font-weight: 700; font-size: 0.9rem;">${(a.prenom || 'C')[0].toUpperCase()}</div>
+          <span style="font-family: var(--font-display); color: var(--gold); font-style: italic; font-size: 0.95rem;">${a.prenom || 'Client'}</span>
+        </div>
+      </div>
+    `).join('');
+  } catch(e) {
+    // Afficher les avis par défaut si erreur
+    const container = document.getElementById('avisAccueil');
+    if (container) container.innerHTML = [
+      { prenom: 'Aïcha K.', note: 5, commentaire: 'Des repas toujours frais et délicieux. Livraison ponctuelle, je recommande fortement !' },
+      { prenom: 'Marius H.', note: 4, commentaire: "Excellente qualité. J'aimerais juste un peu plus de variété en fin de semaine." },
+      { prenom: 'Grace A.', note: 5, commentaire: 'Le baobab au lait est exceptionnel ! Merci pour cette découverte.' }
+    ].map(a => `
+      <div style="background: rgba(251,247,240,0.06); border: 1px solid rgba(212,175,55,0.25); border-radius: 12px; padding: 28px;">
+        <div style="color: #D4AF37; font-size: 1.1rem; margin-bottom: 14px;">${'★'.repeat(a.note)}</div>
+        <p style="color: rgba(251,247,240,0.85); font-size: 0.95rem; line-height: 1.7; margin: 0 0 20px; font-style: italic;">"${a.commentaire}"</p>
+        <div style="display:flex; align-items:center; gap:12px;">
+          <div style="width:38px; height:38px; border-radius:50%; background:linear-gradient(135deg,#6B3018,#D4AF37); display:flex; align-items:center; justify-content:center; color:#FBF7F0; font-weight:700;">${a.prenom[0]}</div>
+          <span style="font-family:var(--font-display); color:var(--gold); font-style:italic;">${a.prenom}</span>
+        </div>
+      </div>
+    `).join('');
+  }
+}
+loadAvisAccueil();
+
+// ── DÉTECTER CONNEXION GOOGLE ──────────────────────────────
+// Si Google nous redirige avec ?connexion=google, vérifier la session
+(async () => {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('connexion') === 'google') {
+    try {
+      const data = await apiGet('/api/auth/session');
+      if (data.connecte && data.type === 'client') {
+        navigate('client');
+        document.getElementById('authBox').style.display = 'none';
+        document.getElementById('clientDash').classList.add('active');
+        document.getElementById('dashWelcome').textContent = 'Bonjour, ' + data.data.prenom;
+        if (data.data.abonnement) {
+          document.getElementById('dashAbo').textContent = data.data.abonnement;
+        }
+        clientLogged = true;
+        await loadMenus();
+        buildClientMenu();
+        buildReposToggles();
+        showToast('✅ Connecté avec Google ! Bienvenue ' + data.data.prenom + '.');
+        // Nettoyer l'URL
+        window.history.replaceState({}, '', '/');
+      }
+    } catch(e) {}
+  }
+})();
 </script>
 </body>
 </html>
