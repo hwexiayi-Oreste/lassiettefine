@@ -85,14 +85,12 @@ db.exec(`
   )
 `);
 
-// ── INSÉRER L'ADMIN PAR DÉFAUT (identifiant: admin / mot de passe: admin123)
+// ── INSÉRER L'ADMIN
 const bcrypt = require('bcryptjs');
-const adminExiste = db.prepare('SELECT id FROM admins WHERE identifiant = ?').get('admin');
-if (!adminExiste) {
-  const hash = bcrypt.hashSync('admin123', 10);
-  db.prepare('INSERT INTO admins (identifiant, mot_de_passe) VALUES (?, ?)').run('admin', hash);
-  console.log('✅ Admin créé — identifiant: admin / mot de passe: admin123');
-}
+db.prepare('DELETE FROM admins').run();
+const hash = bcrypt.hashSync('Mamanetpapa@200174', 10);
+db.prepare('INSERT INTO admins (identifiant, mot_de_passe) VALUES (?, ?)').run('lassiettefine91@gmail.com', hash);
+console.log('✅ Admin configuré');
 
 // ── INSÉRER LES MENUS PAR DÉFAUT
 const menusExistent = db.prepare('SELECT id FROM menus LIMIT 1').get();

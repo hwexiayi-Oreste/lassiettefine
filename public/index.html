@@ -2081,7 +2081,6 @@ footer::before {
             <ul class="plan-features">
               <li>Plus de viande, poisson et légumineuses</li>
               <li>Menu enrichi et plus varié</li>
-              <li>Livraison prioritaire</li>
               <li>Personnalisation des recettes</li>
               <li>Espace Client VIP</li>
               <li>Support SAV prioritaire</li>
@@ -2142,7 +2141,23 @@ footer::before {
           </div>
         </div>
         <div style="text-align:center">
-          <button class="btn btn-gold" onclick="openPayment('Abonnement Jus 20 Jours','À partir de 4 000 FCFA')">Souscrire</button>
+          <button class="btn btn-gold" onclick="openJuiceModal()">Souscrire</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SECTION AVIS CLIENTS ── -->
+  <section style="padding: 80px 0; background: var(--choco-dark);">
+    <div style="max-width: 1100px; margin: 0 auto; padding: 0 24px;">
+      <div style="text-align: center; margin-bottom: 52px;">
+        <p style="font-family: var(--font-display); color: var(--gold); font-size: 0.75rem; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 12px;">Ce que disent nos clients</p>
+        <h2 style="font-family: var(--font-title); color: var(--cream); font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 400; margin: 0;">Ils nous font <em>confiance</em></h2>
+      </div>
+      <div id="avisAccueil" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px;">
+        <!-- Les avis sont chargés dynamiquement -->
+        <div style="text-align:center; color: rgba(251,247,240,0.4); grid-column: 1/-1; padding: 40px 0;">
+          <p style="font-size: 1rem;">Chargement des avis...</p>
         </div>
       </div>
     </div>
@@ -2221,7 +2236,6 @@ footer::before {
             <ul class="plan-features">
               <li>Plus de viande, poisson et légumineuses</li>
               <li>Menu enrichi et personnalisable</li>
-              <li>Livraison prioritaire</li>
               <li>Choix libre de vos jours de repos</li>
               <li>Abonnement jus inclus (en option)</li>
               <li>Espace Client VIP</li>
@@ -2240,7 +2254,7 @@ footer::before {
       <div class="section-head">
         <div class="section-eyebrow"><span class="eyebrow">Jus naturels</span></div>
         <h2>Nos trois <em>signatures</em></h2>
-        <p>Pressés chaque matin à partir de fruits locaux. Sans sucre ajouté, sans conservateur.</p>
+        <p>Nos trois signatures pressés chaque matin à partir de fruit locaux.</p>
       </div>
       <div class="juice-collection">
         <div class="juice-card">
@@ -2283,32 +2297,21 @@ footer::before {
           </div>
         </div>
         <div style="text-align:center">
-          <button class="btn btn-gold" onclick="openPayment('Abonnement Jus 20 Jours','À partir de 4 000 FCFA')">Souscrire</button>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ZONES DE LIVRAISON -->
-  <section class="section section-white">
-    <div class="container">
-      <div class="section-head zones-hero">
-        <div class="section-eyebrow"><span class="eyebrow">Livraison</span></div>
-        <h2>Zones & <em>horaires</em></h2>
-        <p>Nous livrons en entreprise et dans les quartiers éligibles, du lundi au samedi.</p>
+          <button class="btn btn-gold" onclick="openJuiceModal()">Souscrire</button>
+        <p>Nous livrons en entreprise et dans les quartiers éligibles, du lundi au vendredi.</p>
         <div class="zones-times">
           <div class="zones-time">
             <div class="zones-time-icon">✦</div>
             <div class="zones-time-text">
               <strong>Jours de service</strong>
-              <span>Lundi — Samedi</span>
+              <span>Lundi — Vendredi</span>
             </div>
           </div>
           <div class="zones-time">
             <div class="zones-time-icon">◷</div>
             <div class="zones-time-text">
               <strong>Horaires</strong>
-              <span>11h30 — 14h30</span>
+              <span>11h30 — 12h30</span>
             </div>
           </div>
         </div>
@@ -2509,7 +2512,7 @@ footer::before {
               <div class="contact-icon">◷</div>
               <div>
                 <span class="contact-item-label">Horaires de service</span>
-                <div class="contact-item-value">Lun — Sam · 11h30 — 14h30</div>
+                <div class="contact-item-value">Lun — Ven · 11h30 — 12h30</div>
               </div>
             </div>
           </div>
@@ -2910,6 +2913,60 @@ footer::before {
   </div>
 </div>
 
+<!-- MODAL CHOIX JUS -->
+<div class="modal-overlay" id="juiceModal" style="display:none;align-items:center;justify-content:center">
+  <div class="modal" style="max-width:480px;width:100%">
+    <div class="modal-header">
+      <h3 class="modal-title">Abonnement Jus — 20 Jours</h3>
+      <button class="modal-close" onclick="closeJuiceModal()">✕</button>
+    </div>
+    <p style="color:var(--ink-mute);font-size:0.9rem;margin-bottom:20px">Choisissez votre jus favori pour 20 jours ouvrables.</p>
+    <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:24px">
+      <div id="jc-bissap" class="payment-method" onclick="selectJuice('Abonnement Jus Bissap × 20', 4000, 'jc-bissap')" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border:1px solid var(--line);transition:all 0.3s">
+        <div>
+          <div style="font-family:var(--font-display);font-style:italic;font-size:1.1rem;color:var(--choco-dark)">Bissap</div>
+          <div style="font-size:0.82rem;color:var(--ink-mute)">Hibiscus rouge naturel</div>
+        </div>
+        <div style="font-family:var(--font-display);font-style:italic;font-size:1.2rem;color:var(--gold);font-weight:500">4 000 FCFA</div>
+      </div>
+      <div id="jc-ananas" class="payment-method" onclick="selectJuice('Abonnement Jus Ananas × 20', 6000, 'jc-ananas')" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border:1px solid var(--line);transition:all 0.3s">
+        <div>
+          <div style="font-family:var(--font-display);font-style:italic;font-size:1.1rem;color:var(--choco-dark)">Ananas</div>
+          <div style="font-size:0.82rem;color:var(--ink-mute)">Fraîcheur tropicale</div>
+        </div>
+        <div style="font-family:var(--font-display);font-style:italic;font-size:1.2rem;color:var(--gold);font-weight:500">6 000 FCFA</div>
+      </div>
+      <div id="jc-baobab" class="payment-method" onclick="selectJuice('Abonnement Jus Baobab × 20', 10000, 'jc-baobab')" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border:1px solid var(--line);transition:all 0.3s">
+        <div>
+          <div style="font-family:var(--font-display);font-style:italic;font-size:1.1rem;color:var(--choco-dark)">Baobab au Lait</div>
+          <div style="font-size:0.82rem;color:var(--ink-mute)">Velouté, riche en vitamines</div>
+        </div>
+        <div style="font-family:var(--font-display);font-style:italic;font-size:1.2rem;color:var(--gold);font-weight:500">10 000 FCFA</div>
+      </div>
+    </div>
+    <div id="juice-pay-form" style="display:none">
+      <div class="payment-methods" style="margin-bottom:16px">
+        <div class="payment-method selected" id="jpm-mtn" onclick="selectJuicePM('mtn')" style="cursor:pointer">
+          <div class="pm-logo mtn">MTN</div>
+          <div class="pm-name">MTN MoMo</div>
+          <div class="pm-sub">Mobile Money</div>
+        </div>
+        <div class="payment-method" id="jpm-moov" onclick="selectJuicePM('moov')" style="cursor:pointer">
+          <div class="pm-logo moov">Moov</div>
+          <div class="pm-name">Moov Money</div>
+          <div class="pm-sub">Mobile Money</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Numéro de téléphone</label>
+        <input type="tel" placeholder="+229 XX XX XX XX" id="juice-phone">
+      </div>
+      <div class="payment-summary" id="juiceSummary"></div>
+      <button class="btn btn-primary" style="width:100%;margin-top:12px" onclick="confirmJuicePayment()">Confirmer le paiement</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -3143,7 +3200,11 @@ async function loginAdmin() {
   if (!u || !p) { showToast('⚠️ Identifiants requis'); return; }
   showToast('⏳ Vérification...');
   try {
+<<<<<<< HEAD
     const data = await apiPost('/api/auth/admin', { identifiant: u, mot_de_passe: p });
+=======
+    const data = await apiPost('/api/admin/login', { identifiant: u, mot_de_passe: p });
+>>>>>>> 1ec3b73ea23adb9789a8525594df55ec472e9dde
     if (data.succes) {
       adminLogged = true;
       document.getElementById('adminLogin').style.display = 'none';
@@ -3247,13 +3308,89 @@ async function sendReply(i, avisId) {
 }
 
 /* ─── PAYMENT ─────────────────────────────────────────────── */
-function openPayment(item, price) {
+function calcFraisRetrait(montant) {
+  if (montant <= 5000) return 125;
+  if (montant <= 10000) return 250;
+  return 375;
+}
+
+function formatPriceFCFA(n) {
+  return n.toLocaleString('fr-FR') + ' FCFA';
+}
+
+function openPayment(item, priceStr) {
   currentPayItem = item;
-  currentPayPrice = price;
+  currentPayPrice = priceStr;
+  // Essayer d'extraire le montant numérique pour calculer les frais
+  const match = priceStr.replace(/\s/g,'').match(/(\d+)/);
+  const montant = match ? parseInt(match[1]) : 0;
+  const frais = montant > 0 ? calcFraisRetrait(montant) : 0;
+  const total = montant + frais;
   document.getElementById('paySummary').innerHTML = `
     <div class="payment-summary-row"><span>Produit</span><span>${item}</span></div>
-    <div class="payment-summary-row total"><span>Total</span><span>${price}</span></div>`;
+    <div class="payment-summary-row"><span>Montant</span><span>${montant > 0 ? formatPriceFCFA(montant) : priceStr}</span></div>
+    ${frais > 0 ? `<div class="payment-summary-row"><span>Frais de retrait</span><span>+ ${formatPriceFCFA(frais)}</span></div>` : ''}
+    ${montant > 0 ? `<div class="payment-summary-row total"><span>Total</span><span>${formatPriceFCFA(total)}</span></div>` : `<div class="payment-summary-row total"><span>Total</span><span>${priceStr}</span></div>`}`;
   document.getElementById('payModal').classList.add('open');
+}
+
+/* ─── JUS MODAL ───────────────────────────────────────────── */
+let selectedJuiceId = null;
+let selectedJuiceItem = '';
+let selectedJuicePrice = 0;
+let selectedJuicePM = 'mtn';
+
+function openJuiceModal() {
+  selectedJuiceId = null;
+  selectedJuiceItem = '';
+  selectedJuicePrice = 0;
+  document.querySelectorAll('#juiceModal .payment-method').forEach(el => {
+    if (!el.id.startsWith('jpm-')) el.classList.remove('selected');
+  });
+  document.getElementById('juice-pay-form').style.display = 'none';
+  document.getElementById('juiceModal').style.display = 'flex';
+}
+
+function closeJuiceModal() {
+  document.getElementById('juiceModal').style.display = 'none';
+}
+
+function selectJuice(item, price, cardId) {
+  selectedJuiceItem = item;
+  selectedJuicePrice = price;
+  selectedJuiceId = cardId;
+  // Highlight sélection
+  ['jc-bissap','jc-ananas','jc-baobab'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.style.borderColor = id === cardId ? 'var(--gold)' : 'var(--line)';
+      el.style.background  = id === cardId ? 'var(--cream-warm)' : '';
+    }
+  });
+  // Afficher le formulaire de paiement
+  const frais = calcFraisRetrait(price);
+  const total = price + frais;
+  document.getElementById('juiceSummary').innerHTML = `
+    <div class="payment-summary-row"><span>Produit</span><span>${item}</span></div>
+    <div class="payment-summary-row"><span>Montant</span><span>${formatPriceFCFA(price)}</span></div>
+    <div class="payment-summary-row"><span>Frais de retrait</span><span>+ ${formatPriceFCFA(frais)}</span></div>
+    <div class="payment-summary-row total"><span>Total</span><span>${formatPriceFCFA(total)}</span></div>`;
+  document.getElementById('juice-pay-form').style.display = 'block';
+}
+
+function selectJuicePM(pm) {
+  selectedJuicePM = pm;
+  document.querySelectorAll('#juiceModal [id^="jpm-"]').forEach(m => m.classList.remove('selected'));
+  document.getElementById('jpm-' + pm).classList.add('selected');
+}
+
+function confirmJuicePayment() {
+  const phone = document.getElementById('juice-phone').value;
+  if (!phone) { showToast('⚠️ Entrez votre numéro'); return; }
+  if (!selectedJuiceItem) { showToast('⚠️ Choisissez un jus'); return; }
+  closeJuiceModal();
+  const pmName = selectedJuicePM === 'mtn' ? 'MTN MoMo' : 'Moov Money';
+  showToast(`✅ Paiement ${pmName} confirmé ! Un SMS vous sera envoyé.`);
 }
 
 function closePayment() {
@@ -3262,7 +3399,7 @@ function closePayment() {
 
 function selectPM(pm) {
   selectedPM = pm;
-  document.querySelectorAll('.payment-method').forEach(m => m.classList.remove('selected'));
+  document.querySelectorAll('#payModal .payment-method').forEach(m => m.classList.remove('selected'));
   document.getElementById('pm-' + pm).classList.add('selected');
 }
 
@@ -3312,6 +3449,12 @@ function showToast(msg) {
 document.getElementById('payModal').addEventListener('click', function(e) {
   if (e.target === this) closePayment();
 });
+<<<<<<< HEAD
+=======
+document.getElementById('juiceModal').addEventListener('click', function(e) {
+  if (e.target === this) closeJuiceModal();
+});
+>>>>>>> 1ec3b73ea23adb9789a8525594df55ec472e9dde
 
 // Charger les menus depuis le serveur au démarrage
 loadMenus();

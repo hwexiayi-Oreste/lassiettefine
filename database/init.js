@@ -1,17 +1,14 @@
 const Database = require('better-sqlite3');
 const path = require('path');
 const fs = require('fs');
+const bcrypt = require('bcryptjs');
 
-// Créer le dossier database s'il n'existe pas
 const dbDir = path.join(__dirname);
 if (!fs.existsSync(dbDir)) fs.mkdirSync(dbDir, { recursive: true });
 
 const db = new Database(path.join(__dirname, 'lassiettefine.db'));
-
-// Activer les clés étrangères
 db.pragma('foreign_keys = ON');
 
-// ── TABLE CLIENTS
 db.exec(`
   CREATE TABLE IF NOT EXISTS clients (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -28,7 +25,6 @@ db.exec(`
   )
 `);
 
-// ── TABLE ADMIN
 db.exec(`
   CREATE TABLE IF NOT EXISTS admins (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -37,7 +33,6 @@ db.exec(`
   )
 `);
 
-// ── TABLE MENUS
 db.exec(`
   CREATE TABLE IF NOT EXISTS menus (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -47,7 +42,6 @@ db.exec(`
   )
 `);
 
-// ── TABLE JOURS DE REPOS
 db.exec(`
   CREATE TABLE IF NOT EXISTS jours_repos (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -57,7 +51,6 @@ db.exec(`
   )
 `);
 
-// ── TABLE AVIS
 db.exec(`
   CREATE TABLE IF NOT EXISTS avis (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -70,7 +63,6 @@ db.exec(`
   )
 `);
 
-// ── TABLE MESSAGES CONTACT
 db.exec(`
   CREATE TABLE IF NOT EXISTS messages (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -85,16 +77,21 @@ db.exec(`
   )
 `);
 
-// ── INSÉRER L'ADMIN PAR DÉFAUT (identifiant: admin / mot de passe: admin123)
-const bcrypt = require('bcryptjs');
-const adminExiste = db.prepare('SELECT id FROM admins WHERE identifiant = ?').get('admin');
-if (!adminExiste) {
-  const hash = bcrypt.hashSync('admin123', 10);
-  db.prepare('INSERT INTO admins (identifiant, mot_de_passe) VALUES (?, ?)').run('admin', hash);
-  console.log('✅ Admin créé — identifiant: admin / mot de passe: admin123');
+// ── SUPPRIMER L'ANCIEN ADMIN ET CRÉER LE NOUVEAU
+const ancienAdmin = db.prepare('SELECT id FROM admins WHERE identifiant = ?').get('admin');
+if (ancienAdmin) {
+  db.prepare('DELETE FROM admins WHERE identifiant = ?').run('admin');
+  console.log('✅ Ancien admin supprimé');
 }
 
-// ── INSÉRER LES MENUS PAR DÉFAUT
+const nouvelAdmin = db.prepare("SELECT id FROM admins WHERE identifiant = ?").get("L'assietteFine");
+if (!nouvelAdmin) {
+  const hash = bcrypt.hashSync('Mamanetpapa@200174', 10);
+  db.prepare('INSERT INTO admins (identifiant, mot_de_passe) VALUES (?, ?)').run("L'assietteFine", hash);
+  console.log("✅ Nouvel admin créé — identifiant: L'assietteFine");
+}
+
+// ── MENUS PAR DÉFAUT
 const menusExistent = db.prepare('SELECT id FROM menus LIMIT 1').get();
 if (!menusExistent) {
   const semaine = 'S1';
