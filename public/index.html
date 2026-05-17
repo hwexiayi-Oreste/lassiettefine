@@ -3201,6 +3201,7 @@ async function loginAdmin() {
   showToast('⏳ Vérification...');
   try {
     const data = await apiPost('/api/auth/admin', { identifiant: u, mot_de_passe: p });
+    console.log('Réponse admin:', JSON.stringify(data));
     if (data.succes) {
       adminLogged = true;
       navigate('admin');
@@ -3213,6 +3214,7 @@ async function loginAdmin() {
       showToast('❌ ' + (data.message || 'Identifiants incorrects'));
     }
   } catch(e) {
+    console.error('Erreur loginAdmin:', e);
     showToast('❌ Erreur de connexion. Vérifiez votre connexion internet.');
   }
 }
