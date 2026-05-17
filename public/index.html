@@ -3200,11 +3200,7 @@ async function loginAdmin() {
   if (!u || !p) { showToast('⚠️ Identifiants requis'); return; }
   showToast('⏳ Vérification...');
   try {
-<<<<<<< HEAD
     const data = await apiPost('/api/auth/admin', { identifiant: u, mot_de_passe: p });
-=======
-    const data = await apiPost('/api/admin/login', { identifiant: u, mot_de_passe: p });
->>>>>>> 1ec3b73ea23adb9789a8525594df55ec472e9dde
     if (data.succes) {
       adminLogged = true;
       document.getElementById('adminLogin').style.display = 'none';
@@ -3449,12 +3445,9 @@ function showToast(msg) {
 document.getElementById('payModal').addEventListener('click', function(e) {
   if (e.target === this) closePayment();
 });
-<<<<<<< HEAD
-=======
 document.getElementById('juiceModal').addEventListener('click', function(e) {
   if (e.target === this) closeJuiceModal();
 });
->>>>>>> 1ec3b73ea23adb9789a8525594df55ec472e9dde
 
 // Charger les menus depuis le serveur au démarrage
 loadMenus();
