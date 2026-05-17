@@ -3203,6 +3203,7 @@ async function loginAdmin() {
     const data = await apiPost('/api/auth/admin', { identifiant: u, mot_de_passe: p });
     if (data.succes) {
       adminLogged = true;
+      navigate('admin');
       document.getElementById('adminLogin').style.display = 'none';
       document.getElementById('adminDash').style.display = 'block';
       await buildAdminMenus();
