@@ -103,4 +103,47 @@ router.post('/avis/reponse', adminAuth, (req, res) => {
   }
 });
 
+// ── ENREGISTRER UNE COMMANDE
+router.post('/commandes', (req, res) => {
+  const { produit, prix } = req.body;
+  if (!produit || !prix) return res.json({ succes: false });
+  try {
+    const client = req.session.client;
+    db.prepare(`
+      INSERT INTO commandes (client_id, prenom, nom, email, telephone, produit, prix)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `).run(
+      client ? client.id : null,
+      client ? client.prenom : 'Visiteur',
+      client ? client.nom : '',
+      client ? client.email : '',
+      client ? client.telephone : '',
+      produit, prix
+    );
+    res.json({ succes: true });
+  } catch(e) {
+    console.error('Erreur commande:', e);
+    res.json({ succes: false });
+  }
+});
+
+// ── LISTE DES COMMANDES
+router.get('/commandes', adminAuth, (req, res) => {
+  const commandes = db.prepare(`
+    SELECT * FROM commandes ORDER BY created_at DESC
+  `).all();
+  res.json({ succes: true, commandes });
+});
+
+// ── MODIFIER STATUT COMMANDE
+router.post('/commandes/statut', adminAuth, (req, res) => {
+  const { id, statut } = req.body;
+  try {
+    db.prepare('UPDATE commandes SET statut = ? WHERE id = ?').run(statut, id);
+    res.json({ succes: true });
+  } catch(e) {
+    res.json({ succes: false });
+  }
+});
+
 module.exports = router;

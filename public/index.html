@@ -2756,6 +2756,7 @@ footer::before {
         <a onclick="showAdminSection('repos')" id="as-repos">Jours de repos</a>
         <a onclick="showAdminSection('avis')" id="as-avis">Avis clients</a>
         <a onclick="showAdminSection('messages')" id="as-messages">Messages</a>
+        <a onclick="showAdminSection('commandes')" id="as-commandes">Commandes</a>
       </nav>
       <main class="admin-main">
         <div class="admin-section active" id="asec-dashboard">
@@ -2817,6 +2818,15 @@ footer::before {
         <div class="admin-section" id="asec-avis">
           <h2>Avis clients</h2>
           <div id="adminAvisList"></div>
+        </div>
+        <div class="admin-section" id="asec-commandes">
+          <h2>Commandes reçues</h2>
+          <div class="admin-table-wrap">
+            <table class="admin-table">
+              <thead><tr><th>Date</th><th>Client</th><th>Email</th><th>Produit</th><th>Prix</th><th>Statut</th><th>Action</th></tr></thead>
+              <tbody id="commandesList"><tr><td colspan="7" style="text-align:center">Chargement...</td></tr></tbody>
+            </table>
+          </div>
         </div>
         <div class="admin-section" id="asec-messages">
           <h2>Messages reçus</h2>
@@ -3235,6 +3245,7 @@ function showAdminSection(sec) {
   document.getElementById('as-' + sec).classList.add('active');
   if (sec === 'menus') buildAdminMenus();
   if (sec === 'avis') buildAdminAvis();
+  if (sec === 'commandes') buildAdminCommandes();
 }
 
 async function buildAdminMenus() {
@@ -3317,7 +3328,8 @@ function formatPriceFCFA(n) {
   return n.toLocaleString('fr-FR') + ' FCFA';
 }
 
-function openPayment(item, priceStr) {
+async function openPayment(item, priceStr) {
+  try { await apiPost('/api/admin/commandes', { produit: item, prix: priceStr }); } catch(e) {}
   const msg = encodeURIComponent("Bonjour L'Assiette Fine !\n\nJe souhaite souscrire a :\n- " + item + " : " + priceStr + "\n\nMerci de confirmer ma commande.");
   window.open('https://wa.me/22946338936?text=' + msg, '_blank');
 }
@@ -3372,9 +3384,10 @@ function selectJuicePM(pm) {
   document.getElementById('jpm-' + pm).classList.add('selected');
 }
 
-function confirmJuicePayment() {
+async function confirmJuicePayment() {
   if (!selectedJuiceItem) { showToast('Choisissez un jus'); return; }
   closeJuiceModal();
+  try { await apiPost('/api/admin/commandes', { produit: selectedJuiceItem, prix: formatPriceFCFA(selectedJuicePrice) + '/mois' }); } catch(e) {}
   const msg = encodeURIComponent("Bonjour L'Assiette Fine !\n\nJe souhaite souscrire a :\n- " + selectedJuiceItem + " : " + formatPriceFCFA(selectedJuicePrice) + "/mois\n\nMerci de confirmer ma commande.");
   window.open('https://wa.me/22946338936?text=' + msg, '_blank');
 }
@@ -3389,10 +3402,59 @@ function selectPM(pm) {
   document.getElementById('pm-' + pm).classList.add('selected');
 }
 
-function confirmPayment() {
+async function confirmPayment() {
   closePayment();
+  try { await apiPost('/api/admin/commandes', { produit: currentPayItem, prix: currentPayPrice }); } catch(e) {}
   const msg = encodeURIComponent("Bonjour L'Assiette Fine !\n\nJe souhaite souscrire a :\n- " + currentPayItem + " : " + currentPayPrice + "\n\nMerci de confirmer ma commande.");
   window.open('https://wa.me/22946338936?text=' + msg, '_blank');
+}
+
+/* ─── ADMIN — COMMANDES ──────────────────────────────────── */
+async function buildAdminCommandes() {
+  const tbody = document.getElementById('commandesList');
+  tbody.innerHTML = '<tr><td colspan="7" style="text-align:center">Chargement...</td></tr>';
+  try {
+    const data = await apiGet('/api/admin/commandes');
+    if (!data.succes || data.commandes.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center">Aucune commande pour le moment.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = data.commandes.map(c => {
+      const date = new Date(c.created_at).toLocaleDateString('fr-FR');
+      const nom = (c.prenom || '') + ' ' + (c.nom || '');
+      const badge = c.statut === 'confirmée'
+        ? '<span class="status-badge status-active">Confirmée</span>'
+        : c.statut === 'annulée'
+        ? '<span class="status-badge status-inactive">Annulée</span>'
+        : '<span class="status-badge status-pending">En attente</span>';
+      return '<tr>' +
+        '<td>' + date + '</td>' +
+        '<td>' + nom.trim() + '</td>' +
+        '<td>' + (c.email || '—') + '</td>' +
+        '<td>' + c.produit + '</td>' +
+        '<td>' + c.prix + '</td>' +
+        '<td>' + badge + '</td>' +
+        '<td>' +
+          '<select onchange="updateStatutCommande(' + c.id + ', this.value)" style="padding:4px 8px;border-radius:6px;border:1px solid var(--line)">' +
+          '<option value="en attente"' + (c.statut==='en attente'?' selected':'') + '>En attente</option>' +
+          '<option value="confirmée"' + (c.statut==='confirmée'?' selected':'') + '>Confirmée</option>' +
+          '<option value="annulée"' + (c.statut==='annulée'?' selected':'') + '>Annulée</option>' +
+          '</select>' +
+        '</td>' +
+      '</tr>';
+    }).join('');
+  } catch(e) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:red">Erreur de chargement.</td></tr>';
+  }
+}
+
+async function updateStatutCommande(id, statut) {
+  try {
+    await apiPost('/api/admin/commandes/statut', { id, statut });
+    showToast('✅ Statut mis à jour');
+  } catch(e) {
+    showToast('❌ Erreur lors de la mise à jour');
+  }
 }
 
 /* ─── CONTACT — ENVOI VIA SERVEUR ─────────────────────────── */

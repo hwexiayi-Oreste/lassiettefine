@@ -85,6 +85,23 @@ db.exec(`
   )
 `);
 
+// ── TABLE COMMANDES
+db.exec(`
+  CREATE TABLE IF NOT EXISTS commandes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    client_id INTEGER,
+    prenom TEXT,
+    nom TEXT,
+    email TEXT,
+    telephone TEXT,
+    produit TEXT NOT NULL,
+    prix TEXT NOT NULL,
+    statut TEXT DEFAULT 'en attente',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (client_id) REFERENCES clients(id)
+  )
+`);
+
 // ── INSÉRER L'ADMIN
 const bcrypt = require('bcryptjs');
 db.prepare('DELETE FROM admins').run();
