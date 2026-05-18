@@ -1906,6 +1906,76 @@ footer::before {
   .container, .container-narrow { padding: 0 20px; }
   .hero-image { max-width: 340px; margin: 0 auto; }
 }
+
+/* ═══════════════════════════════════════════════════
+   RESPONSIVE MOBILE — Corrections complètes
+═══════════════════════════════════════════════════ */
+@media (max-width: 640px) {
+  /* Navigation admin en scroll horizontal */
+  .admin-topbar { flex-direction: column; gap: 12px; padding: 16px; text-align: center; }
+  .admin-layout { grid-template-columns: 1fr; }
+  .admin-sidebar { display: flex; flex-wrap: nowrap; overflow-x: auto; padding: 10px 12px; gap: 6px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  .admin-sidebar::-webkit-scrollbar { display: none; }
+  .admin-sidebar a { white-space: nowrap; border-left: none !important; border-bottom: 2px solid transparent; padding: 8px 14px; font-size: 0.8rem; }
+  .admin-sidebar a.active, .admin-sidebar a:hover { border-bottom-color: var(--gold) !important; border-left: none !important; }
+  .admin-main { padding: 16px 12px; }
+  .admin-section h2 { font-size: 1.3rem; }
+
+  /* Tables scrollables sur mobile */
+  .admin-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .admin-table { min-width: 500px; font-size: 0.8rem; }
+  .admin-table th, .admin-table td { padding: 8px 10px; }
+
+  /* KPI grid en 2 colonnes */
+  .kpi-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 12px; }
+  .kpi { padding: 16px 12px; }
+  .kpi-val { font-size: 1.6rem; }
+
+  /* Espace client */
+  .dashboard .page-banner { padding: 40px 16px 24px; }
+  .dashboard .page-banner h1 { font-size: 1.8rem; }
+  .dash-grid { grid-template-columns: 1fr !important; }
+  .dash-card { padding: 20px 16px; }
+
+  /* Hero */
+  .hero-text h1 { font-size: 2rem; }
+  .hero-text .btn { width: 100%; text-align: center; }
+  .hero-meta { flex-direction: column; gap: 12px; }
+
+  /* Auth forms */
+  .auth-wrap { padding: 0 4px; }
+  .auth-form { padding: 24px 16px; }
+
+  /* Bouton retour */
+  .btn-ghost { font-size: 0.78rem; padding: 6px 14px; }
+
+  /* Modaux */
+  .modal { padding: 24px 16px; margin: 16px; border-radius: 12px; }
+  .modal-title { font-size: 1.1rem; }
+
+  /* Plans */
+  .plan-card { padding: 28px 20px; }
+  .plan-price .amount { font-size: 2rem; }
+
+  /* Formulaires */
+  .form-group input, .form-group select, .form-group textarea { font-size: 16px; }
+
+  /* Sections */
+  .section { padding: 50px 0; }
+  .section-head h2 { font-size: 1.8rem; }
+  .container, .container-narrow { padding: 0 16px; }
+
+  /* Footer */
+  .footer-grid { grid-template-columns: 1fr; gap: 28px; }
+  footer { padding: 40px 0 24px; }
+}
+
+@media (max-width: 480px) {
+  .kpi-grid { grid-template-columns: repeat(2, 1fr) !important; }
+  .kpi-val { font-size: 1.4rem; }
+  .hero-text h1 { font-size: 1.7rem; }
+  .admin-section h2 { font-size: 1.1rem; }
+}
 </style>
 </head>
 <body>
@@ -2777,27 +2847,13 @@ footer::before {
       <main class="admin-main">
         <div class="admin-section active" id="asec-dashboard">
           <h2>Tableau de bord</h2>
-          <div class="kpi-grid">
-            <div class="kpi"><div class="kpi-val">48</div><div class="kpi-label">Abonnés actifs</div></div>
-            <div class="kpi"><div class="kpi-val">12</div><div class="kpi-label">Formule 15K</div></div>
-            <div class="kpi"><div class="kpi-val">36</div><div class="kpi-label">Formule 20K</div></div>
-            <div class="kpi"><div class="kpi-val">23</div><div class="kpi-label">Abonnés jus</div></div>
-            <div class="kpi"><div class="kpi-val">5</div><div class="kpi-label">Repos demain</div></div>
-            <div class="kpi"><div class="kpi-val">4.7★</div><div class="kpi-label">Note moyenne</div></div>
-          </div>
-          <div class="dash-card" style="margin-top:24px">
-            <h3>Livraisons demain</h3>
-            <div class="admin-table-wrap">
-              <table class="admin-table">
-                <thead><tr><th>Client</th><th>Adresse</th><th>Formule</th><th>Jus</th><th>Statut</th></tr></thead>
-                <tbody>
-                  <tr><td>Aïcha Koffi</td><td>Cadjehoun</td><td>Protéinée</td><td>Bissap</td><td><span class="status-badge status-active">Confirmé</span></td></tr>
-                  <tr><td>Marius Hounon</td><td>Akpakpa</td><td>Essentielle</td><td>—</td><td><span class="status-badge status-active">Confirmé</span></td></tr>
-                  <tr><td>Grace Adjovi</td><td>Haie Vive</td><td>Protéinée</td><td>Ananas</td><td><span class="status-badge status-pending">En attente</span></td></tr>
-                  <tr><td>Kofi Mensah</td><td>Ganhi</td><td>Essentielle</td><td>Baobab</td><td><span class="status-badge status-active">Confirmé</span></td></tr>
-                </tbody>
-              </table>
-            </div>
+          <div class="kpi-grid" id="kpiGrid">
+            <div class="kpi"><div class="kpi-val" id="kpi-total">—</div><div class="kpi-label">Abonnés actifs</div></div>
+            <div class="kpi"><div class="kpi-val" id="kpi-15k">—</div><div class="kpi-label">Formule 15K</div></div>
+            <div class="kpi"><div class="kpi-val" id="kpi-25k">—</div><div class="kpi-label">Formule 25K</div></div>
+            <div class="kpi"><div class="kpi-val" id="kpi-jus">—</div><div class="kpi-label">Abonnés jus</div></div>
+            <div class="kpi"><div class="kpi-val" id="kpi-messages">—</div><div class="kpi-label">Messages non lus</div></div>
+            <div class="kpi"><div class="kpi-val" id="kpi-note">—</div><div class="kpi-label">Note moyenne</div></div>
           </div>
         </div>
         <div class="admin-section" id="asec-menus">
@@ -2809,12 +2865,8 @@ footer::before {
           <h2>Abonnements</h2>
           <div class="admin-table-wrap">
             <table class="admin-table">
-              <thead><tr><th>Client</th><th>Formule</th><th>Début</th><th>Zone</th><th>Statut</th></tr></thead>
-              <tbody>
-                <tr><td>Aïcha Koffi</td><td>Protéinée</td><td>01/04/2026</td><td>Cadjehoun</td><td><span class="status-badge status-active">Actif</span></td></tr>
-                <tr><td>Marius Hounon</td><td>Essentielle</td><td>15/03/2026</td><td>Akpakpa</td><td><span class="status-badge status-active">Actif</span></td></tr>
-                <tr><td>Grace Adjovi</td><td>Protéinée</td><td>10/04/2026</td><td>Haie Vive</td><td><span class="status-badge status-pending">En attente</span></td></tr>
-              </tbody>
+              <thead><tr><th>Nom</th><th>Email</th><th>Téléphone</th><th>Formule</th><th>Zone</th><th>Inscription</th></tr></thead>
+              <tbody id="abonnementsList"><tr><td colspan="6" style="text-align:center">Chargement...</td></tr></tbody>
             </table>
           </div>
         </div>
@@ -2822,12 +2874,8 @@ footer::before {
           <h2>Jours de repos</h2>
           <div class="admin-table-wrap">
             <table class="admin-table">
-              <thead><tr><th>Client</th><th>Lun</th><th>Mar</th><th>Mer</th><th>Jeu</th><th>Ven</th><th>Sam</th></tr></thead>
-              <tbody>
-                <tr><td>Aïcha Koffi</td><td>—</td><td>●</td><td>—</td><td>—</td><td>—</td><td>●</td></tr>
-                <tr><td>Marius Hounon</td><td>—</td><td>—</td><td>—</td><td>●</td><td>—</td><td>—</td></tr>
-                <tr><td>Grace Adjovi</td><td>●</td><td>—</td><td>—</td><td>—</td><td>●</td><td>—</td></tr>
-              </tbody>
+              <thead><tr><th>Client</th><th>Jour de repos</th></tr></thead>
+              <tbody id="reposList"><tr><td colspan="2" style="text-align:center">Chargement...</td></tr></tbody>
             </table>
           </div>
         </div>
@@ -2848,12 +2896,8 @@ footer::before {
           <h2>Messages reçus</h2>
           <div class="admin-table-wrap">
             <table class="admin-table">
-              <thead><tr><th>Date</th><th>Nom</th><th>Email</th><th>Sujet</th><th>Statut</th></tr></thead>
-              <tbody>
-                <tr><td>18/04/2026</td><td>Brice Tossou</td><td>brice@gmail.com</td><td>Abonnement</td><td><span class="status-badge status-pending">Non lu</span></td></tr>
-                <tr><td>17/04/2026</td><td>Félicia Hodo</td><td>felicia@mail.com</td><td>Livraison</td><td><span class="status-badge status-active">Traité</span></td></tr>
-                <tr><td>16/04/2026</td><td>Jean Dossou</td><td>jean@gmail.com</td><td>Jus</td><td><span class="status-badge status-active">Traité</span></td></tr>
-              </tbody>
+              <thead><tr><th>Date</th><th>Nom</th><th>Email</th><th>Sujet</th><th>Message</th></tr></thead>
+              <tbody id="messagesList"><tr><td colspan="5" style="text-align:center">Chargement...</td></tr></tbody>
             </table>
           </div>
         </div>
@@ -3235,6 +3279,7 @@ async function loginAdmin() {
       document.getElementById('adminDash').style.display = 'block';
       await buildAdminMenus();
       await buildAdminAvis();
+      await loadAdminDashboard();
       showToast('🔐 Bienvenue, Gérante !');
     } else {
       showToast('❌ ' + (data.message || 'Identifiants incorrects'));
@@ -3259,9 +3304,92 @@ function showAdminSection(sec) {
   document.getElementById('asec-' + sec).classList.add('active');
   document.querySelectorAll('.admin-sidebar a').forEach(a => a.classList.remove('active'));
   document.getElementById('as-' + sec).classList.add('active');
+  if (sec === 'dashboard') loadAdminDashboard();
   if (sec === 'menus') buildAdminMenus();
   if (sec === 'avis') buildAdminAvis();
   if (sec === 'commandes') buildAdminCommandes();
+  if (sec === 'abonnements') loadAdminAbonnements();
+  if (sec === 'repos') loadAdminRepos();
+  if (sec === 'messages') loadAdminMessages();
+}
+
+async function loadAdminDashboard() {
+  try {
+    const data = await apiGet('/api/admin/dashboard');
+    if (data.succes) {
+      document.getElementById('kpi-total').textContent = data.stats.totalClients;
+      document.getElementById('kpi-15k').textContent = data.stats.formule15k;
+      document.getElementById('kpi-25k').textContent = data.stats.formule20k;
+      document.getElementById('kpi-jus').textContent = data.stats.abonnesJus;
+      document.getElementById('kpi-messages').textContent = data.stats.messagesNonLus;
+      document.getElementById('kpi-note').textContent = data.stats.noteMoyenne + '★';
+    }
+  } catch(e) { console.error('Dashboard:', e); }
+}
+
+async function loadAdminAbonnements() {
+  const tbody = document.getElementById('abonnementsList');
+  tbody.innerHTML = '<tr><td colspan="6" style="text-align:center">Chargement...</td></tr>';
+  try {
+    const data = await apiGet('/api/admin/abonnements');
+    if (!data.succes || data.clients.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#9a8070">Aucun abonné pour le moment.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = data.clients.map(c => {
+      const date = c.created_at ? new Date(c.created_at).toLocaleDateString('fr-FR') : '—';
+      const formule = c.abonnement || '<span style="color:#9a8070">Non défini</span>';
+      return '<tr>' +
+        '<td>' + (c.prenom || '') + ' ' + (c.nom || '') + '</td>' +
+        '<td style="font-size:0.82rem">' + (c.email || '—') + '</td>' +
+        '<td>' + (c.telephone || '—') + '</td>' +
+        '<td>' + formule + '</td>' +
+        '<td>' + (c.adresse_livraison || '—') + '</td>' +
+        '<td>' + date + '</td>' +
+      '</tr>';
+    }).join('');
+  } catch(e) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:red">Erreur de chargement.</td></tr>';
+  }
+}
+
+async function loadAdminRepos() {
+  const tbody = document.getElementById('reposList');
+  tbody.innerHTML = '<tr><td colspan="2" style="text-align:center">Chargement...</td></tr>';
+  try {
+    const data = await apiGet('/api/admin/repos');
+    if (!data.succes || data.repos.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="2" style="text-align:center;color:#9a8070">Aucun jour de repos enregistré.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = data.repos.map(r => '<tr><td>' + r.prenom + ' ' + r.nom + '</td><td>' + r.jour + '</td></tr>').join('');
+  } catch(e) {
+    tbody.innerHTML = '<tr><td colspan="2" style="text-align:center;color:red">Erreur de chargement.</td></tr>';
+  }
+}
+
+async function loadAdminMessages() {
+  const tbody = document.getElementById('messagesList');
+  tbody.innerHTML = '<tr><td colspan="5" style="text-align:center">Chargement...</td></tr>';
+  try {
+    const data = await apiGet('/api/admin/messages');
+    if (!data || !data.succes || !data.messages || data.messages.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#9a8070">Aucun message reçu.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = data.messages.map(m => {
+      const date = m.created_at ? new Date(m.created_at).toLocaleDateString('fr-FR') : '—';
+      return '<tr>' +
+        '<td>' + date + '</td>' +
+        '<td>' + (m.prenom || '') + ' ' + (m.nom || '') + '</td>' +
+        '<td style="font-size:0.82rem">' + (m.email || '—') + '</td>' +
+        '<td>' + (m.sujet || '—') + '</td>' +
+        '<td style="font-size:0.82rem;max-width:200px;overflow:hidden;text-overflow:ellipsis">' + (m.message || '—') + '</td>' +
+      '</tr>';
+    }).join('');
+  } catch(e) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:red">Erreur de chargement.</td></tr>';
+  }
 }
 
 async function buildAdminMenus() {

@@ -146,4 +146,14 @@ router.post('/commandes/statut', adminAuth, (req, res) => {
   }
 });
 
+// ── LISTE DES MESSAGES
+router.get('/messages', adminAuth, (req, res) => {
+  try {
+    const messages = db.prepare('SELECT * FROM messages ORDER BY created_at DESC').all();
+    res.json({ succes: true, messages });
+  } catch(e) {
+    res.json({ succes: false, messages: [] });
+  }
+});
+
 module.exports = router;
