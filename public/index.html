@@ -3318,17 +3318,7 @@ function formatPriceFCFA(n) {
 }
 
 function openPayment(item, priceStr) {
-  const msg = encodeURIComponent(
-    'Bonjour L'Assiette Fine ! 🍽️
-
-' +
-    'Je souhaite souscrire à :
-' +
-    '• ' + item + ' — ' + priceStr + '
-
-' +
-    'Merci de me confirmer ma commande.'
-  );
+  const msg = encodeURIComponent("Bonjour L'Assiette Fine !\n\nJe souhaite souscrire a :\n- " + item + " : " + priceStr + "\n\nMerci de confirmer ma commande.");
   window.open('https://wa.me/22946338936?text=' + msg, '_blank');
 }
 
@@ -3383,19 +3373,9 @@ function selectJuicePM(pm) {
 }
 
 function confirmJuicePayment() {
-  if (!selectedJuiceItem) { showToast('⚠️ Choisissez un jus'); return; }
+  if (!selectedJuiceItem) { showToast('Choisissez un jus'); return; }
   closeJuiceModal();
-  const msg = encodeURIComponent(
-    "Bonjour L'Assiette Fine ! 🍹
-
-" +
-    "Je souhaite souscrire à :
-" +
-    "• " + selectedJuiceItem + " — " + formatPriceFCFA(selectedJuicePrice) + "/mois
-
-" +
-    "Merci de me confirmer ma commande."
-  );
+  const msg = encodeURIComponent("Bonjour L'Assiette Fine !\n\nJe souhaite souscrire a :\n- " + selectedJuiceItem + " : " + formatPriceFCFA(selectedJuicePrice) + "/mois\n\nMerci de confirmer ma commande.");
   window.open('https://wa.me/22946338936?text=' + msg, '_blank');
 }
 
@@ -3411,17 +3391,7 @@ function selectPM(pm) {
 
 function confirmPayment() {
   closePayment();
-  const msg = encodeURIComponent(
-    "Bonjour L'Assiette Fine ! 🍽️
-
-" +
-    "Je souhaite souscrire à :
-" +
-    "• " + currentPayItem + " — " + currentPayPrice + "
-
-" +
-    "Merci de me confirmer ma commande."
-  );
+  const msg = encodeURIComponent("Bonjour L'Assiette Fine !\n\nJe souhaite souscrire a :\n- " + currentPayItem + " : " + currentPayPrice + "\n\nMerci de confirmer ma commande.");
   window.open('https://wa.me/22946338936?text=' + msg, '_blank');
 }
 
