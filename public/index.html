@@ -3318,19 +3318,18 @@ function formatPriceFCFA(n) {
 }
 
 function openPayment(item, priceStr) {
-  currentPayItem = item;
-  currentPayPrice = priceStr;
-  // Essayer d'extraire le montant numérique pour calculer les frais
-  const match = priceStr.replace(/\s/g,'').match(/(\d+)/);
-  const montant = match ? parseInt(match[1]) : 0;
-  const frais = montant > 0 ? calcFraisRetrait(montant) : 0;
-  const total = montant + frais;
-  document.getElementById('paySummary').innerHTML = `
-    <div class="payment-summary-row"><span>Produit</span><span>${item}</span></div>
-    <div class="payment-summary-row"><span>Montant</span><span>${montant > 0 ? formatPriceFCFA(montant) : priceStr}</span></div>
-    ${frais > 0 ? `<div class="payment-summary-row"><span>Frais de retrait</span><span>+ ${formatPriceFCFA(frais)}</span></div>` : ''}
-    ${montant > 0 ? `<div class="payment-summary-row total"><span>Total</span><span>${formatPriceFCFA(total)}</span></div>` : `<div class="payment-summary-row total"><span>Total</span><span>${priceStr}</span></div>`}`;
-  document.getElementById('payModal').classList.add('open');
+  const msg = encodeURIComponent(
+    'Bonjour L'Assiette Fine ! 🍽️
+
+' +
+    'Je souhaite souscrire à :
+' +
+    '• ' + item + ' — ' + priceStr + '
+
+' +
+    'Merci de me confirmer ma commande.'
+  );
+  window.open('https://wa.me/22946338936?text=' + msg, '_blank');
 }
 
 /* ─── JUS MODAL ───────────────────────────────────────────── */
@@ -3384,12 +3383,20 @@ function selectJuicePM(pm) {
 }
 
 function confirmJuicePayment() {
-  const phone = document.getElementById('juice-phone').value;
-  if (!phone) { showToast('⚠️ Entrez votre numéro'); return; }
   if (!selectedJuiceItem) { showToast('⚠️ Choisissez un jus'); return; }
   closeJuiceModal();
-  const pmName = selectedJuicePM === 'mtn' ? 'MTN MoMo' : 'Moov Money';
-  showToast(`✅ Paiement ${pmName} confirmé ! Un SMS vous sera envoyé.`);
+  const msg = encodeURIComponent(
+    "Bonjour L'Assiette Fine ! 🍹
+
+" +
+    "Je souhaite souscrire à :
+" +
+    "• " + selectedJuiceItem + " — " + formatPriceFCFA(selectedJuicePrice) + "/mois
+
+" +
+    "Merci de me confirmer ma commande."
+  );
+  window.open('https://wa.me/22946338936?text=' + msg, '_blank');
 }
 
 function closePayment() {
@@ -3403,11 +3410,19 @@ function selectPM(pm) {
 }
 
 function confirmPayment() {
-  const phone = document.getElementById('pay-phone').value;
-  if (!phone) { showToast('⚠️ Entrez votre numéro'); return; }
   closePayment();
-  const pmName = selectedPM === 'mtn' ? 'MTN MoMo' : 'Moov Money';
-  showToast(`✅ Paiement ${pmName} confirmé ! Un SMS vous sera envoyé.`);
+  const msg = encodeURIComponent(
+    "Bonjour L'Assiette Fine ! 🍽️
+
+" +
+    "Je souhaite souscrire à :
+" +
+    "• " + currentPayItem + " — " + currentPayPrice + "
+
+" +
+    "Merci de me confirmer ma commande."
+  );
+  window.open('https://wa.me/22946338936?text=' + msg, '_blank');
 }
 
 /* ─── CONTACT — ENVOI VIA SERVEUR ─────────────────────────── */
